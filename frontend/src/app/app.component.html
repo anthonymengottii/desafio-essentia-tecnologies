@@ -1,0 +1,13 @@
+<header class="topbar">
+  <a routerLink="/tasks" class="brand">TechX · Tarefas</a>
+  @if (auth.isLoggedIn()) {
+    <div class="user-area">
+      <span class="user-name">Olá, {{ auth.user()?.name }}</span>
+      <button class="btn-ghost" (click)="logout()">Sair</button>
+    </div>
+  }
+</header>
+
+<main class="content">
+  <router-outlet />
+</main>

@@ -1,0 +1,27 @@
+<div class="auth-wrap">
+  <form class="card auth-card" (ngSubmit)="submit()">
+    <h2>Entrar</h2>
+
+    <div class="field">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" name="email" [(ngModel)]="email" required />
+    </div>
+
+    <div class="field">
+      <label for="password">Senha</label>
+      <input id="password" type="password" name="password" [(ngModel)]="password" required />
+    </div>
+
+    <button class="btn" type="submit" [disabled]="loading()">
+      {{ loading() ? 'Entrando...' : 'Entrar' }}
+    </button>
+
+    @if (error()) {
+      <p class="error-msg">{{ error() }}</p>
+    }
+
+    <p class="auth-switch">
+      Não tem conta? <a routerLink="/register">Cadastre-se</a>
+    </p>
+  </form>
+</div>
