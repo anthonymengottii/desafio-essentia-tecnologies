@@ -19,7 +19,7 @@
     <div class="form-actions">
       <button class="btn" type="submit">{{ editingId() ? 'Salvar' : 'Adicionar' }}</button>
       @if (editingId()) {
-        <button class="btn btn-sm" type="button" (click)="cancelEdit()">Cancelar</button>
+        <button class="btn btn-outline" type="button" (click)="cancelEdit()">Cancelar</button>
       }
     </div>
   </form>
@@ -27,6 +27,13 @@
     <p class="error-msg">{{ error() }}</p>
   }
 </section>
+
+<div class="list-header">
+  <h3>Minhas tarefas</h3>
+  @if (tasks().length) {
+    <span class="counter">{{ pendingCount() }} pendente(s) de {{ tasks().length }}</span>
+  }
+</div>
 
 <section class="task-list">
   @if (loading()) {

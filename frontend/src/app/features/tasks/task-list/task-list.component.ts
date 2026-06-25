@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/task.service';
@@ -14,6 +14,7 @@ export class TaskListComponent implements OnInit {
   private taskService = inject(TaskService);
 
   tasks = signal<Task[]>([]);
+  pendingCount = computed(() => this.tasks().filter((t) => !t.completed).length);
   loading = signal(false);
   error = signal('');
 
