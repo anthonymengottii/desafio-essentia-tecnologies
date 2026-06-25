@@ -1,0 +1,260 @@
+@if (store.modalOpen()) {
+  <div class="modal-backdrop" (click)="store.closeModal()">
+    <div class="modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ store.editingId() ? 'Editar tarefa' : 'Nova tarefa' }}</h3>
+        <button class="modal-close" type="button" (click)="store.closeModal()" aria-label="Fechar">
+          <lucide-icon [img]="XIcon" [size]="20" />
+        </button>
+      </div>
+
+      <form (ngSubmit)="store.save()">
+        <div class="field">
+          <label for="title">Título</label>
+          <input
+            id="title"
+            name="title"
+            [(ngModel)]="store.title"
+            required
+            placeholder="O que precisa ser feito?"
+          />
+        </div>
+
+        <div class="field">
+          <label for="description">Descrição</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="store.description"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="assignee">Atribuir a</label>
+          <select id="assignee" name="assignee" [(ngModel)]="store.assigneeId">
+            @for (u of store.users(); track u.id) {
+              <option [ngValue]="u.id">
+                {{ u.name }}{{ u.id === store.currentUserId ? ' (você)' : '' }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status" [(ngModel)]="store.status">
+            @for (s of store.statusOptions; track s) {
+              <option [ngValue]="s">{{ store.statusLabels[s] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="dueDate">Prazo</label>
+          <input id="dueDate" type="date" name="dueDate" [(ngModel)]="store.dueDate" />
+        </div>
+
+        <div class="field">
+          <label for="tags">Tags (separadas por vírgula)</label>
+          <input id="tags" name="tags" [(ngModel)]="store.tags" placeholder="trabalho, urgente" />
+        </div>
+
+        <div class="field">
+          <label>Checklist</label>
+          @if (store.formChecklist.length) {
+            <ul class="checklist">
+              @for (item of store.formChecklist; track $index) {
+                <li class="checklist-item" [class.done]="item.done">
+                  <label>
+                    <input
+                      type="checkbox"
+                      [checked]="item.done"
+                      (change)="store.toggleFormChecklistItem($index)"
+                    />
+                    <span>{{ item.text }}</span>
+                  </label>
+                  <button
+                    type="button"
+                    class="checklist-remove"
+                    (click)="store.removeFormChecklistItem($index)"
+                    aria-label="Remover item"
+                  >
+                    <lucide-icon [img]="XIcon" [size]="14" />
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+          <div class="checklist-add">
+            <input
+              name="newFormChecklistText"
+              [(ngModel)]="store.newFormChecklistText"
+              placeholder="Adicionar item..."
+              (keydown.enter)="$event.preventDefault(); store.addFormChecklistItem()"
+            />
+            <button class="btn btn-sm btn-icon" type="button" (click)="store.addFormChecklistItem()">
+              <lucide-icon [img]="PlusIcon" [size]="14" /> Adicionar
+            </button>
+          </div>
+        </div>
+
+        @if (store.error()) {
+          <p class="error-msg">{{ store.error() }}</p>
+        }
+
+        <div class="form-actions">
+          <button class="btn btn-outline" type="button" (click)="store.closeModal()">Cancelar</button>
+          <button class="btn" type="submit">{{ store.editingId() ? 'Salvar' : 'Adicionar' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (store.taskToDelete(); as task) {
+  <div class="modal-backdrop" (click)="store.cancelDelete()">
+    <div class="modal card" role="alertdialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Excluir tarefa</h3>
+        <button class="modal-close" type="button" (click)="store.cancelDelete()" aria-label="Fechar">
+          <lucide-icon [img]="XIcon" [size]="20" />
+        </button>
+      </div>
+
+      <p class="confirm-text">
+        Tem certeza que deseja excluir a tarefa <strong>"{{ task.title }}"</strong>? Essa ação não
+        pode ser desfeita.
+      </p>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" type="button" (click)="store.cancelDelete()">Cancelar</button>
+        <button class="btn btn-danger" type="button" (click)="store.confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (store.detailTask(); as task) {
+  <div class="modal-backdrop" (click)="store.closeDetails()">
+    <div class="modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Detalhes da tarefa</h3>
+        <button class="modal-close" type="button" (click)="store.closeDetails()" aria-label="Fechar">
+          <lucide-icon [img]="XIcon" [size]="20" />
+        </button>
+      </div>
+
+      <div class="detail-body">
+        <div class="task-title-row">
+          <strong class="detail-title">{{ task.title }}</strong>
+          <span class="badge" [class]="'badge-' + task.status.toLowerCase()">
+            {{ store.statusLabels[task.status] }}
+          </span>
+        </div>
+
+        @if (task.description) {
+          <p class="detail-desc">{{ task.description }}</p>
+        } @else {
+          <p class="detail-desc muted-text">Sem descrição.</p>
+        }
+
+        <div class="detail-row">
+          <span class="detail-label">Criada por</span>
+          <span>{{ task.creator?.id === store.currentUserId ? 'Você' : task.creator?.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Responsável</span>
+          <span>
+            {{ task.assignee ? (task.assignee.id === store.currentUserId ? 'Você' : task.assignee.name) : '—' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Prazo</span>
+          <span [class.overdue-text]="store.isOverdue(task)">
+            {{ task.dueDate ? (task.dueDate | date: 'dd/MM/yyyy') : '—' }}
+            @if (store.isOverdue(task)) { (vencido) }
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Criada em</span>
+          <span>{{ task.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        @if (task.meta?.tags?.length) {
+          <div class="detail-row">
+            <span class="detail-label">Tags</span>
+            <span class="detail-tags">
+              @for (tag of task.meta?.tags ?? []; track tag) {
+                <span class="tag">{{ tag }}</span>
+              }
+            </span>
+          </div>
+        }
+
+        @if (task.meta?.notes) {
+          <div class="detail-row">
+            <span class="detail-label">Notas</span>
+            <span>{{ task.meta?.notes }}</span>
+          </div>
+        }
+
+        <div class="detail-section">
+          <span class="detail-label">
+            Checklist
+            @if (store.checklistProgress().total) {
+              <span class="checklist-progress">
+                {{ store.checklistProgress().done }}/{{ store.checklistProgress().total }}
+              </span>
+            }
+          </span>
+
+          @if (store.detailLoading()) {
+            <span class="muted-text">Carregando...</span>
+          } @else {
+            <ul class="checklist">
+              @for (item of store.checklist(); track $index) {
+                <li class="checklist-item" [class.done]="item.done">
+                  <label>
+                    <input
+                      type="checkbox"
+                      [checked]="item.done"
+                      (change)="store.toggleChecklistItem($index)"
+                    />
+                    <span>{{ item.text }}</span>
+                  </label>
+                  <button
+                    type="button"
+                    class="checklist-remove"
+                    (click)="store.removeChecklistItem($index)"
+                    aria-label="Remover item"
+                  >
+                    <lucide-icon [img]="XIcon" [size]="14" />
+                  </button>
+                </li>
+              }
+            </ul>
+
+            <form class="checklist-add" (ngSubmit)="store.addChecklistItem()">
+              <input
+                name="newChecklistText"
+                [(ngModel)]="store.newChecklistText"
+                placeholder="Adicionar item..."
+              />
+              <button class="btn btn-sm btn-icon" type="submit">
+                <lucide-icon [img]="PlusIcon" [size]="14" /> Adicionar
+              </button>
+            </form>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" type="button" (click)="store.closeDetails()">Fechar</button>
+        <button class="btn btn-icon" type="button" (click)="store.editFromDetails()">
+          <lucide-icon [img]="PencilIcon" [size]="15" /> Editar
+        </button>
+      </div>
+    </div>
+  </div>
+}
