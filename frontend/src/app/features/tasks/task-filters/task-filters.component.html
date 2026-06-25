@@ -1,0 +1,54 @@
+<div class="filters">
+  <div class="search-box">
+    <lucide-icon [img]="SearchIcon" [size]="16" />
+    <input
+      type="text"
+      placeholder="Buscar tarefas..."
+      [ngModel]="store.search()"
+      (ngModelChange)="store.search.set($event)"
+    />
+  </div>
+
+  <select
+    class="filter-select"
+    [ngModel]="store.filterAssignee()"
+    (ngModelChange)="store.filterAssignee.set($event)"
+    title="Responsável"
+  >
+    <option [ngValue]="'all'">Todos os responsáveis</option>
+    @for (u of store.users(); track u.id) {
+      <option [ngValue]="u.id">{{ u.id === store.currentUserId ? 'Você' : u.name }}</option>
+    }
+  </select>
+
+  @if (showStatus) {
+    <select
+      class="filter-select"
+      [ngModel]="store.filterStatus()"
+      (ngModelChange)="store.filterStatus.set($event)"
+      title="Status"
+    >
+      <option [ngValue]="'all'">Todos os status</option>
+      @for (s of store.statusOptions; track s) {
+        <option [ngValue]="s">{{ store.statusLabels[s] }}</option>
+      }
+    </select>
+  }
+
+  <select
+    class="filter-select"
+    [ngModel]="store.sortBy()"
+    (ngModelChange)="store.sortBy.set($event)"
+    title="Ordenar por"
+  >
+    <option value="createdAt">Mais recentes</option>
+    <option value="dueDate">Prazo</option>
+    <option value="title">Título (A-Z)</option>
+  </select>
+
+  @if (store.hasActiveFilters()) {
+    <button class="btn btn-sm btn-outline btn-icon" (click)="store.clearFilters()">
+      <lucide-icon [img]="XIcon" [size]="14" /> Limpar
+    </button>
+  }
+</div>
