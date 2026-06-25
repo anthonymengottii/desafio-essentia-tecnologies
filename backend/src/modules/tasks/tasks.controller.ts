@@ -13,7 +13,7 @@ const createSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
   description: z.string().optional(),
   status: statusEnum.optional(),
-  dueDate: z.string().datetime().optional(),
+  dueDate: z.string().datetime().nullable().optional(),
   assigneeId: z.number().int().positive().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().optional(),

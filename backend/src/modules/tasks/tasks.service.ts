@@ -18,7 +18,7 @@ interface CreateInput {
   title: string;
   description?: string;
   status?: TaskStatus;
-  dueDate?: string;
+  dueDate?: string | null;
   assigneeId?: number | null;
   tags?: string[];
   notes?: string;
