@@ -270,18 +270,6 @@ export class TaskListComponent implements OnInit {
     }
   }
 
-  changeStatus(task: Task, status: TaskStatus): void {
-    if (status === task.status) {
-      return;
-    }
-    this.taskService.setStatus(task.id, status).subscribe({
-      next: (updated) =>
-        this.tasks.update((list) =>
-          list.map((t) => (t.id === updated.id ? { ...t, status: updated.status } : t))
-        ),
-    });
-  }
-
   askDelete(task: Task): void {
     this.taskToDelete.set(task);
   }

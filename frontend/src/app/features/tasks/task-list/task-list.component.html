@@ -62,18 +62,8 @@
           </div>
         </div>
         <div class="task-actions">
-          <select
-            class="status-select"
-            [ngModel]="task.status"
-            (ngModelChange)="changeStatus(task, $event)"
-            title="Alterar status"
-          >
-            @for (s of statusOptions; track s) {
-              <option [ngValue]="s">{{ statusLabels[s] }}</option>
-            }
-          </select>
-          <button class="btn btn-sm btn-danger btn-icon" (click)="askDelete(task)">
-            <lucide-icon [img]="Trash2Icon" [size]="14" /> Excluir
+          <button class="icon-btn-danger" (click)="askDelete(task)" title="Excluir" aria-label="Excluir">
+            <lucide-icon [img]="Trash2Icon" [size]="16" />
           </button>
         </div>
       </div>
