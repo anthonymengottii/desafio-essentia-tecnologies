@@ -114,6 +114,10 @@
   justify-content: center;
 }
 
+.shell.collapsed .nav-item span {
+  display: none;
+}
+
 .nav-item:hover {
   background: rgba(17, 24, 48, 0.05);
   color: var(--text);
