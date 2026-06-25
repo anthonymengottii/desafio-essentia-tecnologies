@@ -36,7 +36,7 @@
         </div>
         <div class="task-actions">
           <button class="btn btn-sm btn-outline" (click)="startEdit(task)">Editar</button>
-          <button class="btn btn-sm btn-danger" (click)="remove(task)">Excluir</button>
+          <button class="btn btn-sm btn-danger" (click)="askDelete(task)">Excluir</button>
         </div>
       </div>
     }
@@ -89,6 +89,34 @@
           <button class="btn" type="submit">{{ editingId() ? 'Salvar' : 'Adicionar' }}</button>
         </div>
       </form>
+    </div>
+  </div>
+}
+
+@if (taskToDelete(); as task) {
+  <div class="modal-backdrop" (click)="cancelDelete()">
+    <div
+      class="modal card"
+      role="alertdialog"
+      aria-modal="true"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h3>Excluir tarefa</h3>
+        <button class="modal-close" type="button" (click)="cancelDelete()" aria-label="Fechar">
+          ×
+        </button>
+      </div>
+
+      <p class="confirm-text">
+        Tem certeza que deseja excluir a tarefa <strong>"{{ task.title }}"</strong>? Essa ação não
+        pode ser desfeita.
+      </p>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" type="button" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn btn-danger" type="button" (click)="confirmDelete()">Excluir</button>
+      </div>
     </div>
   </div>
 }

@@ -25,6 +25,9 @@ export class TaskListComponent implements OnInit {
   description = '';
   tags = '';
 
+  // Estado do modal de exclusão
+  taskToDelete = signal<Task | null>(null);
+
   ngOnInit(): void {
     this.load();
   }
@@ -93,6 +96,9 @@ export class TaskListComponent implements OnInit {
     if (this.modalOpen()) {
       this.closeModal();
     }
+    if (this.taskToDelete()) {
+      this.cancelDelete();
+    }
   }
 
   toggle(task: Task): void {
@@ -104,12 +110,25 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-  remove(task: Task): void {
-    if (!confirm(`Excluir a tarefa "${task.title}"?`)) {
+  askDelete(task: Task): void {
+    this.taskToDelete.set(task);
+  }
+
+  cancelDelete(): void {
+    this.taskToDelete.set(null);
+  }
+
+  confirmDelete(): void {
+    const task = this.taskToDelete();
+    if (!task) {
       return;
     }
     this.taskService.remove(task.id).subscribe({
-      next: () => this.tasks.update((list) => list.filter((t) => t.id !== task.id)),
+      next: () => {
+        this.tasks.update((list) => list.filter((t) => t.id !== task.id));
+        this.taskToDelete.set(null);
+      },
+      error: () => this.taskToDelete.set(null),
     });
   }
 
