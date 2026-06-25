@@ -1,15 +1,36 @@
 <div class="auth-wrap">
   <form class="card auth-card" (ngSubmit)="submit()">
     <h2>Entrar</h2>
+    <p class="auth-subtitle">Bem-vindo de volta!</p>
 
     <div class="field">
       <label for="email">E-mail</label>
-      <input id="email" type="email" name="email" [(ngModel)]="email" required />
+      <input
+        id="email"
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        [class.invalid]="errorsFor('email').length"
+        autocomplete="email"
+      />
+      @for (msg of errorsFor('email'); track msg) {
+        <span class="field-error">{{ msg }}</span>
+      }
     </div>
 
     <div class="field">
       <label for="password">Senha</label>
-      <input id="password" type="password" name="password" [(ngModel)]="password" required />
+      <input
+        id="password"
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        [class.invalid]="errorsFor('password').length"
+        autocomplete="current-password"
+      />
+      @for (msg of errorsFor('password'); track msg) {
+        <span class="field-error">{{ msg }}</span>
+      }
     </div>
 
     <button class="btn" type="submit" [disabled]="loading()">
@@ -20,8 +41,6 @@
       <p class="error-msg">{{ error() }}</p>
     }
 
-    <p class="auth-switch">
-      Não tem conta? <a routerLink="/register">Cadastre-se</a>
-    </p>
+    <p class="auth-switch">Não tem conta? <a routerLink="/register">Cadastre-se</a></p>
   </form>
 </div>
