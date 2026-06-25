@@ -31,6 +31,21 @@ Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desaf
 
 ---
 
+## Opção rápida: tudo via Docker
+
+Sobe bancos **e** a API de uma vez (a API aplica as migrations automaticamente):
+
+```bash
+docker compose up --build
+```
+
+- API: `http://localhost:3333`
+- Em seguida, rode só o frontend (passo 3).
+
+> Para desenvolver o backend localmente (hot-reload), use os passos 1 e 2 abaixo.
+
+---
+
 ## 1. Subir os bancos de dados
 
 Na raiz do projeto:
@@ -97,6 +112,38 @@ npm start
 Aplicação em **http://localhost:4200**.
 
 O endereço da API está em `frontend/src/app/core/api.config.ts` (padrão `http://localhost:3333/api`).
+
+---
+
+## Testes
+
+**Backend** (Jest + supertest — unitários com mocks, não precisa de banco):
+
+```bash
+cd backend
+npm test
+```
+
+Cobre: registro/login (hash, e-mail duplicado, credenciais inválidas), permissões de tarefas
+(criador ou responsável) e proteção de rotas por JWT.
+
+**Frontend** (Jasmine/Karma):
+
+```bash
+cd frontend
+npm test -- --watch=false --browsers=ChromeHeadless
+```
+
+Cobre: lógica do `TasksStore` (busca, filtros, ordenação, prazo vencido, progresso) e o `ToastService`.
+
+---
+
+## Segurança
+
+- **helmet** — cabeçalhos HTTP de segurança.
+- **express-rate-limit** — limite de 10 requisições / 15 min nas rotas `/api/auth` (anti brute-force).
+- Senhas com **bcrypt**; autenticação por **JWT**. Em produção, defina um `JWT_SECRET` forte
+  (`openssl rand -hex 32`).
 
 ---
 
