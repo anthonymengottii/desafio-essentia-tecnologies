@@ -221,6 +221,55 @@
             <span>{{ task.meta?.notes }}</span>
           </div>
         }
+
+        <div class="detail-section">
+          <span class="detail-label">
+            Checklist
+            @if (checklistProgress().total) {
+              <span class="checklist-progress">
+                {{ checklistProgress().done }}/{{ checklistProgress().total }}
+              </span>
+            }
+          </span>
+
+          @if (detailLoading()) {
+            <span class="muted-text">Carregando...</span>
+          } @else {
+            <ul class="checklist">
+              @for (item of checklist(); track $index) {
+                <li class="checklist-item" [class.done]="item.done">
+                  <label>
+                    <input
+                      type="checkbox"
+                      [checked]="item.done"
+                      (change)="toggleChecklistItem($index)"
+                    />
+                    <span>{{ item.text }}</span>
+                  </label>
+                  <button
+                    type="button"
+                    class="checklist-remove"
+                    (click)="removeChecklistItem($index)"
+                    aria-label="Remover item"
+                  >
+                    <lucide-icon [img]="XIcon" [size]="14" />
+                  </button>
+                </li>
+              }
+            </ul>
+
+            <form class="checklist-add" (ngSubmit)="addChecklistItem()">
+              <input
+                name="newChecklistText"
+                [(ngModel)]="newChecklistText"
+                placeholder="Adicionar item..."
+              />
+              <button class="btn btn-sm btn-icon" type="submit">
+                <lucide-icon [img]="PlusIcon" [size]="14" /> Adicionar
+              </button>
+            </form>
+          }
+        </div>
       </div>
 
       <div class="form-actions">

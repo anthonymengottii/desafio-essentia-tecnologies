@@ -14,6 +14,7 @@ import { TaskService } from '../../../core/task.service';
 import { UserService } from '../../../core/user.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import {
+  ChecklistItem,
   STATUS_LABELS,
   STATUS_OPTIONS,
   Task,
@@ -67,6 +68,7 @@ export class TaskListComponent implements OnInit {
   // Estado do modal de detalhes
   detailTask = signal<Task | null>(null);
   detailLoading = signal(false);
+  newChecklistText = '';
 
   ngOnInit(): void {
     this.load();
@@ -146,6 +148,47 @@ export class TaskListComponent implements OnInit {
     }
     this.closeDetails();
     this.startEdit(task);
+  }
+
+  // ===== Checklist (gerenciada no modal de detalhes) =====
+  checklist(): ChecklistItem[] {
+    return this.detailTask()?.meta?.checklist ?? [];
+  }
+
+  checklistProgress(): { done: number; total: number } {
+    const items = this.checklist();
+    return { done: items.filter((i) => i.done).length, total: items.length };
+  }
+
+  addChecklistItem(): void {
+    const text = this.newChecklistText.trim();
+    if (!text) {
+      return;
+    }
+    this.persistChecklist([...this.checklist(), { text, done: false }]);
+    this.newChecklistText = '';
+  }
+
+  toggleChecklistItem(index: number): void {
+    const items = this.checklist().map((item, i) =>
+      i === index ? { ...item, done: !item.done } : item
+    );
+    this.persistChecklist(items);
+  }
+
+  removeChecklistItem(index: number): void {
+    this.persistChecklist(this.checklist().filter((_, i) => i !== index));
+  }
+
+  /** Atualiza a checklist localmente (otimista) e persiste na API. */
+  private persistChecklist(checklist: ChecklistItem[]): void {
+    const task = this.detailTask();
+    if (!task) {
+      return;
+    }
+    const meta = task.meta ?? { taskId: task.id, tags: [], activityLog: [] };
+    this.detailTask.set({ ...task, meta: { ...meta, checklist } });
+    this.taskService.update(task.id, { checklist }).subscribe();
   }
 
   startEdit(task: Task): void {

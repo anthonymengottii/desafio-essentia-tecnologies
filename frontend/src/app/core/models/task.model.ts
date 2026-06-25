@@ -1,7 +1,13 @@
+export interface ChecklistItem {
+  text: string;
+  done: boolean;
+}
+
 export interface TaskMeta {
   taskId: number;
   tags: string[];
   notes?: string;
+  checklist?: ChecklistItem[];
   activityLog: { action: string; at: string }[];
 }
 
@@ -32,6 +38,7 @@ export interface TaskInput {
   assigneeId?: number | null;
   tags?: string[];
   notes?: string;
+  checklist?: ChecklistItem[];
 }
 
 /** Rótulos legíveis para cada status. */

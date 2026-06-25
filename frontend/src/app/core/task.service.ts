@@ -22,7 +22,7 @@ export class TaskService {
     return this.http.post<Task>(this.base, input);
   }
 
-  update(id: number, input: TaskInput): Observable<Task> {
+  update(id: number, input: Partial<TaskInput>): Observable<Task> {
     return this.http.put<Task>(`${this.base}/${id}`, input);
   }
 
