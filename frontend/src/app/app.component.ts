@@ -1,5 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  Router,
+  NavigationEnd,
+  RouterOutlet,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
+import { filter } from 'rxjs';
 import {
   LucideAngularModule,
   List,
@@ -12,6 +19,11 @@ import { AuthService } from './core/auth/auth.service';
 import { ToastComponent } from './shared/toast/toast.component';
 
 const SIDEBAR_KEY = 'techx_sidebar_collapsed';
+
+const PAGE_TITLES: Record<string, string> = {
+  '/tasks': 'Lista de tarefas',
+  '/kanban': 'Kanban',
+};
 
 @Component({
   selector: 'app-root',
@@ -27,12 +39,15 @@ export class AppComponent {
   readonly ExpandIcon = PanelLeftOpen;
 
   readonly auth = inject(AuthService);
+  private router = inject(Router);
 
   readonly collapsed = signal(localStorage.getItem(SIDEBAR_KEY) === '1');
+  readonly pageTitle = signal(this.titleFor(this.router.url));
 
-  toggleSidebar(): void {
-    this.collapsed.update((v) => !v);
-    localStorage.setItem(SIDEBAR_KEY, this.collapsed() ? '1' : '0');
+  constructor() {
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe((e) => this.pageTitle.set(this.titleFor(e.urlAfterRedirects)));
   }
 
   readonly initials = computed(() => {
@@ -46,7 +61,17 @@ export class AppComponent {
     return (first + last).toUpperCase();
   });
 
+  toggleSidebar(): void {
+    this.collapsed.update((v) => !v);
+    localStorage.setItem(SIDEBAR_KEY, this.collapsed() ? '1' : '0');
+  }
+
   logout(): void {
     this.auth.logout();
+  }
+
+  private titleFor(url: string): string {
+    const path = url.split('?')[0];
+    return PAGE_TITLES[path] ?? 'Tarefas';
   }
 }

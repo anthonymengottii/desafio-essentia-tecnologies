@@ -1,13 +1,16 @@
 @if (auth.isLoggedIn()) {
-  <div class="layout">
-    <aside class="sidebar" [class.collapsed]="collapsed()">
-      <div class="sidebar-top">
-        <div class="brand">
-          <strong>TechX</strong>
-          <small>Gerenciador de tarefas</small>
-        </div>
+  <div class="shell" [class.collapsed]="collapsed()">
+    <!-- Sidebar fixa -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        @if (!collapsed()) {
+          <div class="brand">
+            <strong>TechX</strong>
+            <small>Gerenciador de tarefas</small>
+          </div>
+        }
         <button
-          class="collapse-btn"
+          class="icon-btn"
           (click)="toggleSidebar()"
           [title]="collapsed() ? 'Expandir' : 'Minimizar'"
           [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Minimizar menu'"
@@ -17,6 +20,9 @@
       </div>
 
       <nav class="nav">
+        @if (!collapsed()) {
+          <span class="nav-label">Navegação</span>
+        }
         <a routerLink="/tasks" routerLinkActive="active" class="nav-item" title="Lista">
           <lucide-icon [img]="ListIcon" [size]="18" />
           <span>Lista</span>
@@ -27,20 +33,32 @@
         </a>
       </nav>
 
-      <div class="sidebar-footer">
+      <div class="sidebar-foot">
         <div class="user-info">
           <span class="avatar">{{ initials() }}</span>
-          <span class="user-name">{{ auth.user()?.name }}</span>
+          @if (!collapsed()) {
+            <span class="user-name">{{ auth.user()?.name }}</span>
+          }
         </div>
-        <button class="btn-ghost" (click)="logout()" title="Sair" aria-label="Sair">
+        <button class="logout-btn" (click)="logout()" title="Sair" aria-label="Sair">
           <lucide-icon [img]="LogOutIcon" [size]="16" />
-          <span>Sair</span>
+          @if (!collapsed()) {
+            <span>Sair</span>
+          }
         </button>
       </div>
     </aside>
 
+    <!-- Topbar fixa -->
+    <header class="topbar">
+      <h2 class="page-title">{{ pageTitle() }}</h2>
+    </header>
+
+    <!-- Conteúdo -->
     <main class="content">
-      <router-outlet />
+      <div class="content-inner">
+        <router-outlet />
+      </div>
     </main>
   </div>
 } @else {
