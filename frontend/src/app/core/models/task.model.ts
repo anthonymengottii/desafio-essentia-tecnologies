@@ -7,11 +7,13 @@ export interface TaskMeta {
 
 import { User } from './user.model';
 
+export type TaskStatus = 'PENDENTE' | 'EM_ANDAMENTO' | 'CONCLUIDA';
+
 export interface Task {
   id: number;
   title: string;
   description?: string | null;
-  completed: boolean;
+  status: TaskStatus;
   dueDate?: string | null;
   creatorId: number;
   creator?: User;
@@ -25,8 +27,18 @@ export interface Task {
 export interface TaskInput {
   title: string;
   description?: string;
+  status?: TaskStatus;
   dueDate?: string | null;
   assigneeId?: number | null;
   tags?: string[];
   notes?: string;
 }
+
+/** Rótulos legíveis para cada status. */
+export const STATUS_LABELS: Record<TaskStatus, string> = {
+  PENDENTE: 'Pendente',
+  EM_ANDAMENTO: 'Em andamento',
+  CONCLUIDA: 'Concluída',
+};
+
+export const STATUS_OPTIONS: TaskStatus[] = ['PENDENTE', 'EM_ANDAMENTO', 'CONCLUIDA'];

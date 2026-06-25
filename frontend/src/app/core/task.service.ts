@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from './api.config';
-import { Task, TaskInput } from './models/task.model';
+import { Task, TaskInput, TaskStatus } from './models/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -26,8 +26,8 @@ export class TaskService {
     return this.http.put<Task>(`${this.base}/${id}`, input);
   }
 
-  toggleComplete(id: number): Observable<Task> {
-    return this.http.patch<Task>(`${this.base}/${id}/complete`, {});
+  setStatus(id: number, status: TaskStatus): Observable<Task> {
+    return this.http.patch<Task>(`${this.base}/${id}/status`, { status });
   }
 
   remove(id: number): Observable<void> {

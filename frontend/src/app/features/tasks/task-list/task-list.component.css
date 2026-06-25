@@ -65,6 +65,13 @@
   flex: 1;
 }
 
+.task-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .task-title {
   font-size: 1rem;
 }
@@ -72,6 +79,37 @@
 .task-item.done .task-title {
   text-decoration: line-through;
   color: #9ca3af;
+}
+
+/* Badges de status */
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.badge-pendente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-em_andamento {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-concluida {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-select {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.78rem;
+  border-radius: 6px;
 }
 
 .task-desc {

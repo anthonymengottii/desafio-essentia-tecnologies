@@ -15,15 +15,14 @@
     <p class="muted">Nenhuma tarefa cadastrada. Clique em "Nova tarefa" para começar.</p>
   } @else {
     @for (task of tasks(); track task.id) {
-      <div class="card task-item" [class.done]="task.completed">
-        <input
-          type="checkbox"
-          [checked]="task.completed"
-          (change)="toggle(task)"
-          title="Marcar como concluída"
-        />
+      <div class="card task-item" [class.done]="task.status === 'CONCLUIDA'">
         <div class="task-body">
-          <strong class="task-title">{{ task.title }}</strong>
+          <div class="task-title-row">
+            <strong class="task-title">{{ task.title }}</strong>
+            <span class="badge" [class]="'badge-' + task.status.toLowerCase()">
+              {{ statusLabels[task.status] }}
+            </span>
+          </div>
           @if (task.description) {
             <p class="task-desc">{{ task.description }}</p>
           }
@@ -45,6 +44,16 @@
           </div>
         </div>
         <div class="task-actions">
+          <select
+            class="status-select"
+            [ngModel]="task.status"
+            (ngModelChange)="changeStatus(task, $event)"
+            title="Alterar status"
+          >
+            @for (s of statusOptions; track s) {
+              <option [ngValue]="s">{{ statusLabels[s] }}</option>
+            }
+          </select>
           <button class="btn btn-sm btn-outline" (click)="startEdit(task)">Editar</button>
           <button class="btn btn-sm btn-danger" (click)="askDelete(task)">Excluir</button>
         </div>
@@ -92,6 +101,15 @@
               <option [ngValue]="u.id">
                 {{ u.name }}{{ u.id === currentUserId ? ' (você)' : '' }}
               </option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status" [(ngModel)]="status">
+            @for (s of statusOptions; track s) {
+              <option [ngValue]="s">{{ statusLabels[s] }}</option>
             }
           </select>
         </div>

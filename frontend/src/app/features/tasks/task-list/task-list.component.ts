@@ -4,7 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/task.service';
 import { UserService } from '../../../core/user.service';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Task } from '../../../core/models/task.model';
+import {
+  STATUS_LABELS,
+  STATUS_OPTIONS,
+  Task,
+  TaskStatus,
+} from '../../../core/models/task.model';
 import { User } from '../../../core/models/user.model';
 
 @Component({
@@ -20,9 +25,14 @@ export class TaskListComponent implements OnInit {
 
   readonly currentUserId = this.auth.user()?.id ?? null;
 
+  readonly statusLabels = STATUS_LABELS;
+  readonly statusOptions = STATUS_OPTIONS;
+
   tasks = signal<Task[]>([]);
   users = signal<User[]>([]);
-  pendingCount = computed(() => this.tasks().filter((t) => !t.completed).length);
+  pendingCount = computed(
+    () => this.tasks().filter((t) => t.status !== 'CONCLUIDA').length
+  );
   loading = signal(false);
   error = signal('');
 
@@ -33,6 +43,7 @@ export class TaskListComponent implements OnInit {
   description = '';
   tags = '';
   assigneeId: number | null = null;
+  status: TaskStatus = 'PENDENTE';
 
   // Estado do modal de exclusão
   taskToDelete = signal<Task | null>(null);
@@ -65,6 +76,7 @@ export class TaskListComponent implements OnInit {
     const input = {
       title: this.title.trim(),
       description: this.description.trim() || undefined,
+      status: this.status,
       assigneeId: this.assigneeId,
       tags: this.tags
         ? this.tags.split(',').map((t) => t.trim()).filter(Boolean)
@@ -96,6 +108,7 @@ export class TaskListComponent implements OnInit {
     this.description = task.description ?? '';
     this.tags = task.meta?.tags?.join(', ') ?? '';
     this.assigneeId = task.assigneeId ?? null;
+    this.status = task.status;
     this.error.set('');
     this.modalOpen.set(true);
   }
@@ -115,11 +128,14 @@ export class TaskListComponent implements OnInit {
     }
   }
 
-  toggle(task: Task): void {
-    this.taskService.toggleComplete(task.id).subscribe({
+  changeStatus(task: Task, status: TaskStatus): void {
+    if (status === task.status) {
+      return;
+    }
+    this.taskService.setStatus(task.id, status).subscribe({
       next: (updated) =>
         this.tasks.update((list) =>
-          list.map((t) => (t.id === updated.id ? { ...t, completed: updated.completed } : t))
+          list.map((t) => (t.id === updated.id ? { ...t, status: updated.status } : t))
         ),
     });
   }
@@ -152,6 +168,7 @@ export class TaskListComponent implements OnInit {
     this.description = '';
     this.tags = '';
     this.assigneeId = this.currentUserId;
+    this.status = 'PENDENTE';
     this.error.set('');
   }
 }
