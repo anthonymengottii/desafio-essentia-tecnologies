@@ -19,5 +19,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/tasks/task-list/task-list.component').then((m) => m.TaskListComponent),
   },
+  {
+    path: 'kanban',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/tasks/kanban/kanban.component').then((m) => m.KanbanComponent),
+  },
   { path: '**', redirectTo: 'tasks' },
 ];

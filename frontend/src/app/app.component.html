@@ -1,25 +1,40 @@
 @if (auth.isLoggedIn()) {
-  <header class="topbar">
-    <a routerLink="/tasks" class="brand">
-      <span class="brand-text">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
         <strong>TechX</strong>
         <small>Gerenciador de tarefas</small>
-      </span>
-    </a>
-
-    <div class="user-area">
-      <div class="user-info">
-        <span class="avatar">{{ initials() }}</span>
-        <span class="user-name">{{ auth.user()?.name }}</span>
       </div>
-      <button class="btn-ghost" (click)="logout()">
-        <lucide-icon [img]="LogOutIcon" [size]="16" />
-        <span>Sair</span>
-      </button>
-    </div>
-  </header>
-}
 
-<main class="content">
-  <router-outlet />
-</main>
+      <nav class="nav">
+        <a routerLink="/tasks" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="ListIcon" [size]="18" />
+          <span>Lista</span>
+        </a>
+        <a routerLink="/kanban" routerLinkActive="active" class="nav-item">
+          <lucide-icon [img]="KanbanIcon" [size]="18" />
+          <span>Kanban</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <span class="avatar">{{ initials() }}</span>
+          <span class="user-name">{{ auth.user()?.name }}</span>
+        </div>
+        <button class="btn-ghost" (click)="logout()" title="Sair" aria-label="Sair">
+          <lucide-icon [img]="LogOutIcon" [size]="16" />
+          <span>Sair</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+} @else {
+  <main class="content-auth">
+    <router-outlet />
+  </main>
+}
