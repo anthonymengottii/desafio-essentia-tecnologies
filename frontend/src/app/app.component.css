@@ -16,13 +16,66 @@
   background: linear-gradient(180deg, #4f46e5 0%, #6d28d9 100%);
   color: #fff;
   padding: 1.25rem 1rem;
+  transition: width 0.2s ease;
+}
+
+/* ===== Sidebar minimizada ===== */
+.sidebar.collapsed {
+  width: 74px;
+  padding: 1.25rem 0.65rem;
+}
+
+.sidebar.collapsed .sidebar-top {
+  justify-content: center;
+}
+
+.sidebar.collapsed .brand,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .user-name,
+.sidebar.collapsed .btn-ghost span {
+  display: none;
+}
+
+.sidebar.collapsed .nav-item,
+.sidebar.collapsed .btn-ghost {
+  justify-content: center;
+}
+
+.sidebar.collapsed .user-info {
+  justify-content: center;
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .brand {
   display: flex;
   flex-direction: column;
   line-height: 1.15;
-  padding: 0.25rem 0.5rem 1.5rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.collapse-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.24);
 }
 
 .brand strong {
