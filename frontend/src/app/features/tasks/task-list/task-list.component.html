@@ -27,6 +27,16 @@
           @if (task.description) {
             <p class="task-desc">{{ task.description }}</p>
           }
+          <div class="task-people">
+            <span class="person" title="Quem criou">
+              👤 Criada por {{ task.creator?.id === currentUserId ? 'você' : task.creator?.name }}
+            </span>
+            @if (task.assignee) {
+              <span class="person assignee" title="Responsável">
+                ➡ {{ task.assignee.id === currentUserId ? 'Você' : task.assignee.name }}
+              </span>
+            }
+          </div>
           <div class="task-meta">
             @for (tag of task.meta?.tags ?? []; track tag) {
               <span class="tag">{{ tag }}</span>
@@ -73,6 +83,17 @@
         <div class="field">
           <label for="description">Descrição</label>
           <textarea id="description" name="description" [(ngModel)]="description" rows="3"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="assignee">Atribuir a</label>
+          <select id="assignee" name="assignee" [(ngModel)]="assigneeId">
+            @for (u of users(); track u.id) {
+              <option [ngValue]="u.id">
+                {{ u.name }}{{ u.id === currentUserId ? ' (você)' : '' }}
+              </option>
+            }
+          </select>
         </div>
 
         <div class="field">

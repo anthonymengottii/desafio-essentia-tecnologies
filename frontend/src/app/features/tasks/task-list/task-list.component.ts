@@ -2,7 +2,10 @@ import { Component, HostListener, OnInit, computed, inject, signal } from '@angu
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/task.service';
+import { UserService } from '../../../core/user.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { Task } from '../../../core/models/task.model';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-task-list',
@@ -12,8 +15,13 @@ import { Task } from '../../../core/models/task.model';
 })
 export class TaskListComponent implements OnInit {
   private taskService = inject(TaskService);
+  private userService = inject(UserService);
+  private auth = inject(AuthService);
+
+  readonly currentUserId = this.auth.user()?.id ?? null;
 
   tasks = signal<Task[]>([]);
+  users = signal<User[]>([]);
   pendingCount = computed(() => this.tasks().filter((t) => !t.completed).length);
   loading = signal(false);
   error = signal('');
@@ -24,12 +32,16 @@ export class TaskListComponent implements OnInit {
   title = '';
   description = '';
   tags = '';
+  assigneeId: number | null = null;
 
   // Estado do modal de exclusão
   taskToDelete = signal<Task | null>(null);
 
   ngOnInit(): void {
     this.load();
+    this.userService.list().subscribe({
+      next: (users) => this.users.set(users),
+    });
   }
 
   load(): void {
@@ -53,6 +65,7 @@ export class TaskListComponent implements OnInit {
     const input = {
       title: this.title.trim(),
       description: this.description.trim() || undefined,
+      assigneeId: this.assigneeId,
       tags: this.tags
         ? this.tags.split(',').map((t) => t.trim()).filter(Boolean)
         : undefined,
@@ -82,6 +95,7 @@ export class TaskListComponent implements OnInit {
     this.title = task.title;
     this.description = task.description ?? '';
     this.tags = task.meta?.tags?.join(', ') ?? '';
+    this.assigneeId = task.assigneeId ?? null;
     this.error.set('');
     this.modalOpen.set(true);
   }
@@ -137,6 +151,7 @@ export class TaskListComponent implements OnInit {
     this.title = '';
     this.description = '';
     this.tags = '';
+    this.assigneeId = this.currentUserId;
     this.error.set('');
   }
 }
