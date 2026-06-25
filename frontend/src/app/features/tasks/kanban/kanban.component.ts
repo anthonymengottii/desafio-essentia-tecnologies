@@ -16,6 +16,7 @@ import {
 } from 'lucide-angular';
 import { TasksStore } from '../tasks.store';
 import { TaskModalsComponent } from '../task-modals/task-modals.component';
+import { TaskFiltersComponent } from '../task-filters/task-filters.component';
 import { Task, TaskStatus } from '../../../core/models/task.model';
 
 @Component({
@@ -27,6 +28,7 @@ import { Task, TaskStatus } from '../../../core/models/task.model';
     CdkDropList,
     CdkDrag,
     TaskModalsComponent,
+    TaskFiltersComponent,
   ],
   templateUrl: './kanban.component.html',
   styleUrl: './kanban.component.css',

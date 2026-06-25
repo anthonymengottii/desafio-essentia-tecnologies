@@ -5,8 +5,24 @@
   </button>
 </div>
 
+<app-task-filters [showStatus]="false" />
+
 @if (store.loading()) {
-  <p class="muted">Carregando...</p>
+  <div class="board">
+    @for (col of store.statusOptions; track col) {
+      <div class="column">
+        <div class="column-header">{{ store.statusLabels[col] }}</div>
+        <div class="column-body">
+          @for (s of [1, 2]; track s) {
+            <div class="card skeleton-card">
+              <div class="skeleton skeleton-line lg"></div>
+              <div class="skeleton skeleton-line sm"></div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
 } @else {
   <div class="board" cdkDropListGroup>
     @for (col of store.statusOptions; track col) {

@@ -12,13 +12,26 @@
   </div>
 </div>
 
+<app-task-filters [showStatus]="true" />
+
 <section class="task-list">
   @if (store.loading()) {
-    <p class="muted">Carregando...</p>
+    @for (s of [1, 2, 3]; track s) {
+      <div class="card skeleton-card">
+        <div class="skeleton skeleton-line lg"></div>
+        <div class="skeleton skeleton-line md"></div>
+        <div class="skeleton skeleton-line sm"></div>
+      </div>
+    }
   } @else if (store.tasks().length === 0) {
     <p class="muted">Nenhuma tarefa cadastrada. Clique em "Nova tarefa" para começar.</p>
+  } @else if (store.filteredTasks().length === 0) {
+    <div class="empty-filtered">
+      <p class="muted">Nenhuma tarefa encontrada para os filtros aplicados.</p>
+      <button class="btn btn-sm btn-outline" (click)="store.clearFilters()">Limpar filtros</button>
+    </div>
   } @else {
-    @for (task of store.tasks(); track task.id) {
+    @for (task of store.filteredTasks(); track task.id) {
       <div class="card task-item" [class.done]="task.status === 'CONCLUIDA'">
         <div class="task-body clickable" (click)="store.openDetails(task)" title="Ver detalhes">
           <div class="task-title-row">

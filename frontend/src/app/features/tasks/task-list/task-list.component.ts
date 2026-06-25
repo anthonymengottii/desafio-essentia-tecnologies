@@ -10,10 +10,11 @@ import {
 } from 'lucide-angular';
 import { TasksStore } from '../tasks.store';
 import { TaskModalsComponent } from '../task-modals/task-modals.component';
+import { TaskFiltersComponent } from '../task-filters/task-filters.component';
 
 @Component({
   selector: 'app-task-list',
-  imports: [DatePipe, LucideAngularModule, TaskModalsComponent],
+  imports: [DatePipe, LucideAngularModule, TaskModalsComponent, TaskFiltersComponent],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.css',
 })
