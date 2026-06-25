@@ -1,8 +1,16 @@
 @if (store.modalOpen()) {
   <div class="modal-backdrop" (click)="store.closeModal()">
-    <div class="modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div
+      class="modal card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="formModalTitle"
+      cdkTrapFocus
+      cdkTrapFocusAutoCapture
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-header">
-        <h3>{{ store.editingId() ? 'Editar tarefa' : 'Nova tarefa' }}</h3>
+        <h3 id="formModalTitle">{{ store.editingId() ? 'Editar tarefa' : 'Nova tarefa' }}</h3>
         <button class="modal-close" type="button" (click)="store.closeModal()" aria-label="Fechar">
           <lucide-icon [img]="XIcon" [size]="20" />
         </button>
@@ -15,9 +23,13 @@
             id="title"
             name="title"
             [(ngModel)]="store.title"
+            [class.invalid]="store.formErrorsFor('title').length"
             required
             placeholder="O que precisa ser feito?"
           />
+          @for (msg of store.formErrorsFor('title'); track msg) {
+            <span class="field-error">{{ msg }}</span>
+          }
         </div>
 
         <div class="field">
@@ -114,7 +126,14 @@
 
 @if (store.taskToDelete(); as task) {
   <div class="modal-backdrop" (click)="store.cancelDelete()">
-    <div class="modal card" role="alertdialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div
+      class="modal card"
+      role="alertdialog"
+      aria-modal="true"
+      cdkTrapFocus
+      cdkTrapFocusAutoCapture
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-header">
         <h3>Excluir tarefa</h3>
         <button class="modal-close" type="button" (click)="store.cancelDelete()" aria-label="Fechar">
@@ -137,7 +156,14 @@
 
 @if (store.detailTask(); as task) {
   <div class="modal-backdrop" (click)="store.closeDetails()">
-    <div class="modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div
+      class="modal card"
+      role="dialog"
+      aria-modal="true"
+      cdkTrapFocus
+      cdkTrapFocusAutoCapture
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-header">
         <h3>Detalhes da tarefa</h3>
         <button class="modal-close" type="button" (click)="store.closeDetails()" aria-label="Fechar">
