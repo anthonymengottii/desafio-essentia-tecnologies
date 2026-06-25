@@ -1,9 +1,21 @@
 @if (auth.isLoggedIn()) {
   <header class="topbar">
-    <a routerLink="/tasks" class="brand">TechX · Tarefas</a>
+    <a routerLink="/tasks" class="brand">
+      <span class="brand-text">
+        <strong>TechX</strong>
+        <small>Gerenciador de tarefas</small>
+      </span>
+    </a>
+
     <div class="user-area">
-      <span class="user-name">Olá, {{ auth.user()?.name }}</span>
-      <button class="btn-ghost" (click)="logout()">Sair</button>
+      <div class="user-info">
+        <span class="avatar">{{ initials() }}</span>
+        <span class="user-name">{{ auth.user()?.name }}</span>
+      </div>
+      <button class="btn-ghost" (click)="logout()">
+        <lucide-icon [img]="LogOutIcon" [size]="16" />
+        <span>Sair</span>
+      </button>
     </div>
   </header>
 }

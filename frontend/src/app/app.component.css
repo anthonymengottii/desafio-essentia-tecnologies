@@ -1,37 +1,80 @@
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.9rem 1.75rem;
-  background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+  padding: 0.75rem 1.75rem;
+  background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
   color: #fff;
-  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.3);
 }
 
+/* Marca */
 .brand {
-  font-weight: 700;
-  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
   color: #fff;
   text-decoration: none;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-text strong {
+  font-size: 1.1rem;
   letter-spacing: -0.01em;
 }
 
+.brand-text small {
+  font-size: 0.72rem;
+  opacity: 0.8;
+}
+
+/* Área do usuário */
 .user-area {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  color: #4f46e5;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .user-name {
   font-size: 0.9rem;
-  opacity: 0.9;
+  font-weight: 500;
 }
 
 .btn-ghost {
-  background: rgba(255, 255, 255, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 255, 255, 0.14);
   border: 1px solid rgba(255, 255, 255, 0.35);
   color: #fff;
-  padding: 0.4rem 0.9rem;
+  padding: 0.42rem 0.9rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -39,12 +82,28 @@
   transition: background 0.15s;
 }
 
+.btn-ghost lucide-icon {
+  display: inline-flex;
+}
+
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.26);
 }
 
 .content {
   max-width: 760px;
   margin: 0 auto;
   padding: 1.75rem 1.5rem 3rem;
+}
+
+/* Responsivo */
+@media (max-width: 560px) {
+  .topbar {
+    padding: 0.7rem 1rem;
+  }
+
+  .brand-text small,
+  .user-name {
+    display: none;
+  }
 }
