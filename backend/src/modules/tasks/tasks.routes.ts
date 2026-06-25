@@ -11,7 +11,6 @@ router.get("/", asyncHandler(tasksController.list));
 router.post("/", asyncHandler(tasksController.create));
 router.get("/:id", asyncHandler(tasksController.getById));
 router.put("/:id", asyncHandler(tasksController.update));
-router.patch("/:id/status", asyncHandler(tasksController.setStatus));
 router.delete("/:id", asyncHandler(tasksController.remove));
 
 export default router;

@@ -3,12 +3,6 @@ import { prisma } from "../../lib/prisma";
 import { TaskMetaModel } from "../../models/taskMeta.model";
 import { HttpError } from "../../middleware/errorHandler";
 
-const STATUS_LABEL: Record<TaskStatus, string> = {
-  PENDENTE: "pendente",
-  EM_ANDAMENTO: "em andamento",
-  CONCLUIDA: "concluída",
-};
-
 interface ChecklistItem {
   text: string;
   done: boolean;
@@ -164,17 +158,6 @@ export async function update(userId: number, id: number, input: UpdateInput) {
   }
   await logActivity(id, "editada");
 
-  return task;
-}
-
-export async function setStatus(userId: number, id: number, status: TaskStatus) {
-  await findAccessible(userId, id);
-  const task = await prisma.task.update({
-    where: { id },
-    data: { status },
-    include: taskInclude,
-  });
-  await logActivity(id, `status: ${STATUS_LABEL[status]}`);
   return task;
 }
 

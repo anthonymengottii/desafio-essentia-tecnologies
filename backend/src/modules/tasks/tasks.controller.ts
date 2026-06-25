@@ -31,7 +31,6 @@ const updateSchema = z.object({
   checklist: checklistSchema,
 });
 
-const statusSchema = z.object({ status: statusEnum });
 
 function parseId(raw: string): number {
   const id = Number(raw);
@@ -60,12 +59,6 @@ export async function create(req: Request, res: Response): Promise<void> {
 export async function update(req: Request, res: Response): Promise<void> {
   const input = updateSchema.parse(req.body);
   const task = await tasksService.update(req.userId!, parseId(req.params.id), input);
-  res.json(task);
-}
-
-export async function setStatus(req: Request, res: Response): Promise<void> {
-  const { status } = statusSchema.parse(req.body);
-  const task = await tasksService.setStatus(req.userId!, parseId(req.params.id), status);
   res.json(task);
 }
 

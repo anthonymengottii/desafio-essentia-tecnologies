@@ -80,7 +80,6 @@ Variáveis de ambiente (`backend/.env`):
 | POST   | `/api/tasks`                | ✅   | Cria tarefa                        |
 | GET    | `/api/tasks/:id`            | ✅   | Detalha tarefa (+ metadados Mongo) |
 | PUT    | `/api/tasks/:id`            | ✅   | Edita tarefa                       |
-| PATCH  | `/api/tasks/:id/status`     | ✅   | Altera status (PENDENTE/EM_ANDAMENTO/CONCLUIDA) |
 | DELETE | `/api/tasks/:id`            | ✅   | Remove tarefa                      |
 
 Rotas com ✅ exigem o header `Authorization: Bearer <token>`.
