@@ -64,6 +64,10 @@ export class TaskListComponent implements OnInit {
   // Estado do modal de exclusão
   taskToDelete = signal<Task | null>(null);
 
+  // Estado do modal de detalhes
+  detailTask = signal<Task | null>(null);
+  detailLoading = signal(false);
+
   ngOnInit(): void {
     this.load();
     this.userService.list().subscribe({
@@ -118,6 +122,32 @@ export class TaskListComponent implements OnInit {
     this.modalOpen.set(true);
   }
 
+  openDetails(task: Task): void {
+    this.detailTask.set(task);
+    // Busca dados completos (metadados + histórico) que a listagem não traz.
+    this.detailLoading.set(true);
+    this.taskService.getById(task.id).subscribe({
+      next: (full) => {
+        this.detailTask.set(full);
+        this.detailLoading.set(false);
+      },
+      error: () => this.detailLoading.set(false),
+    });
+  }
+
+  closeDetails(): void {
+    this.detailTask.set(null);
+  }
+
+  editFromDetails(): void {
+    const task = this.detailTask();
+    if (!task) {
+      return;
+    }
+    this.closeDetails();
+    this.startEdit(task);
+  }
+
   startEdit(task: Task): void {
     this.editingId.set(task.id);
     this.title = task.title;
@@ -141,6 +171,9 @@ export class TaskListComponent implements OnInit {
     }
     if (this.taskToDelete()) {
       this.cancelDelete();
+    }
+    if (this.detailTask()) {
+      this.closeDetails();
     }
   }
 

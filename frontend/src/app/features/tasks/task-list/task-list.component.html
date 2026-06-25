@@ -18,7 +18,7 @@
   } @else {
     @for (task of tasks(); track task.id) {
       <div class="card task-item" [class.done]="task.status === 'CONCLUIDA'">
-        <div class="task-body">
+        <div class="task-body clickable" (click)="openDetails(task)" title="Ver detalhes">
           <div class="task-title-row">
             <strong class="task-title">{{ task.title }}</strong>
             <span class="badge" [class]="'badge-' + task.status.toLowerCase()">
@@ -58,9 +58,6 @@
               <option [ngValue]="s">{{ statusLabels[s] }}</option>
             }
           </select>
-          <button class="btn btn-sm btn-outline btn-icon" (click)="startEdit(task)">
-            <lucide-icon [img]="PencilIcon" [size]="14" /> Editar
-          </button>
           <button class="btn btn-sm btn-danger btn-icon" (click)="askDelete(task)">
             <lucide-icon [img]="Trash2Icon" [size]="14" /> Excluir
           </button>
@@ -163,6 +160,74 @@
       <div class="form-actions">
         <button class="btn btn-outline" type="button" (click)="cancelDelete()">Cancelar</button>
         <button class="btn btn-danger" type="button" (click)="confirmDelete()">Excluir</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (detailTask(); as task) {
+  <div class="modal-backdrop" (click)="closeDetails()">
+    <div class="modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Detalhes da tarefa</h3>
+        <button class="modal-close" type="button" (click)="closeDetails()" aria-label="Fechar">
+          <lucide-icon [img]="XIcon" [size]="20" />
+        </button>
+      </div>
+
+      <div class="detail-body">
+        <div class="task-title-row">
+          <strong class="detail-title">{{ task.title }}</strong>
+          <span class="badge" [class]="'badge-' + task.status.toLowerCase()">
+            {{ statusLabels[task.status] }}
+          </span>
+        </div>
+
+        @if (task.description) {
+          <p class="detail-desc">{{ task.description }}</p>
+        } @else {
+          <p class="detail-desc muted-text">Sem descrição.</p>
+        }
+
+        <div class="detail-row">
+          <span class="detail-label">Criada por</span>
+          <span>{{ task.creator?.id === currentUserId ? 'Você' : task.creator?.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Responsável</span>
+          <span>
+            {{ task.assignee ? (task.assignee.id === currentUserId ? 'Você' : task.assignee.name) : '—' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Criada em</span>
+          <span>{{ task.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+
+        @if (task.meta?.tags?.length) {
+          <div class="detail-row">
+            <span class="detail-label">Tags</span>
+            <span class="detail-tags">
+              @for (tag of task.meta?.tags ?? []; track tag) {
+                <span class="tag">{{ tag }}</span>
+              }
+            </span>
+          </div>
+        }
+
+        @if (task.meta?.notes) {
+          <div class="detail-row">
+            <span class="detail-label">Notas</span>
+            <span>{{ task.meta?.notes }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" type="button" (click)="closeDetails()">Fechar</button>
+        <button class="btn btn-icon" type="button" (click)="editFromDetails()">
+          <lucide-icon [img]="PencilIcon" [size]="15" /> Editar
+        </button>
       </div>
     </div>
   </div>

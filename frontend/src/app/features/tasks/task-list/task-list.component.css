@@ -65,6 +65,14 @@
   flex: 1;
 }
 
+.task-body.clickable {
+  cursor: pointer;
+}
+
+.task-body.clickable:hover .task-title {
+  color: var(--primary);
+}
+
 .task-title-row {
   display: flex;
   align-items: center;
@@ -231,6 +239,48 @@
   font-size: 0.95rem;
   line-height: 1.5;
 }
+
+/* Modal de detalhes */
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 1.25rem;
+}
+
+.detail-title {
+  font-size: 1.1rem;
+}
+
+.detail-desc {
+  margin: 0;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.muted-text {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.detail-row {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.detail-label {
+  min-width: 110px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
 
 @keyframes fade-in {
   from {
