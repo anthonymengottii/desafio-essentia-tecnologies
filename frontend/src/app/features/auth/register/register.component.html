@@ -12,6 +12,7 @@
         [(ngModel)]="name"
         [class.invalid]="errorsFor('name').length"
         autocomplete="name"
+        placeholder="Seu nome completo"
       />
       @for (msg of errorsFor('name'); track msg) {
         <span class="field-error">{{ msg }}</span>
@@ -27,6 +28,7 @@
         [(ngModel)]="email"
         [class.invalid]="errorsFor('email').length"
         autocomplete="email"
+        placeholder="seu@email.com"
       />
       @for (msg of errorsFor('email'); track msg) {
         <span class="field-error">{{ msg }}</span>
@@ -35,14 +37,26 @@
 
     <div class="field">
       <label for="password">Senha</label>
-      <input
-        id="password"
-        type="password"
-        name="password"
-        [(ngModel)]="password"
-        [class.invalid]="errorsFor('password').length"
-        autocomplete="new-password"
-      />
+      <div class="password-wrap">
+        <input
+          id="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          name="password"
+          [(ngModel)]="password"
+          [class.invalid]="errorsFor('password').length"
+          autocomplete="new-password"
+          minlength="6"
+          placeholder="Mínimo 6 caracteres"
+        />
+        <button
+          type="button"
+          class="password-toggle"
+          (click)="showPassword.set(!showPassword())"
+          [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+        >
+          {{ showPassword() ? '🙈' : '👁' }}
+        </button>
+      </div>
       @for (msg of errorsFor('password'); track msg) {
         <span class="field-error">{{ msg }}</span>
       }

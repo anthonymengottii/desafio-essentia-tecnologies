@@ -100,6 +100,35 @@ textarea.invalid:focus {
   color: var(--danger);
 }
 
+/* Campo de senha com botão de mostrar/ocultar */
+.password-wrap {
+  position: relative;
+  display: flex;
+}
+
+.password-wrap input {
+  flex: 1;
+  padding-right: 2.6rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.password-toggle:hover {
+  background: var(--primary-soft);
+}
+
 /* ===== Buttons ===== */
 .btn {
   background: var(--primary);

@@ -19,6 +19,7 @@ export class RegisterComponent {
   loading = signal(false);
   error = signal('');
   fieldErrors = signal<FieldErrors>({});
+  showPassword = signal(false);
 
   errorsFor(field: string): string[] {
     return this.fieldErrors()[field] ?? [];
