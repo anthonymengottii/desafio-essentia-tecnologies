@@ -8,24 +8,28 @@ datasource db {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  name         String
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
-  tasks        Task[]
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  createdAt     DateTime @default(now())
+  createdTasks  Task[]   @relation("CreatedTasks")
+  assignedTasks Task[]   @relation("AssignedTasks")
 }
 
 model Task {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
-  description String?  @db.Text
-  completed   Boolean  @default(false)
+  description String?   @db.Text
+  completed   Boolean   @default(false)
   dueDate     DateTime?
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  creatorId   Int
+  creator     User      @relation("CreatedTasks", fields: [creatorId], references: [id], onDelete: Cascade)
+  assigneeId  Int?
+  assignee    User?     @relation("AssignedTasks", fields: [assigneeId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  @@index([userId])
+  @@index([creatorId])
+  @@index([assigneeId])
 }

@@ -6,6 +6,7 @@ interface CreateInput {
   title: string;
   description?: string;
   dueDate?: string;
+  assigneeId?: number | null;
   tags?: string[];
   notes?: string;
 }
@@ -14,9 +15,14 @@ interface UpdateInput {
   title?: string;
   description?: string;
   dueDate?: string | null;
+  assigneeId?: number | null;
   tags?: string[];
   notes?: string;
 }
+
+// Inclui dados públicos de quem criou e de quem é responsável.
+const userSelect = { select: { id: true, name: true, email: true } };
+const taskInclude = { creator: userSelect, assignee: userSelect };
 
 async function logActivity(taskId: number, action: string): Promise<void> {
   await TaskMetaModel.updateOne(
@@ -25,36 +31,54 @@ async function logActivity(taskId: number, action: string): Promise<void> {
   );
 }
 
+/** Garante que o usuário informado existe (para atribuição). */
+async function assertUserExists(userId: number): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new HttpError(400, "Usuário responsável não encontrado");
+  }
+}
+
 export async function list(userId: number) {
+  // Tarefas que o usuário criou OU que foram atribuídas a ele.
   return prisma.task.findMany({
-    where: { userId },
+    where: { OR: [{ creatorId: userId }, { assigneeId: userId }] },
+    include: taskInclude,
     orderBy: { createdAt: "desc" },
   });
 }
 
-/** Busca a task garantindo que pertence ao usuário. */
-async function findOwned(userId: number, id: number) {
+/** Busca a task garantindo que o usuário é criador ou responsável. */
+async function findAccessible(userId: number, id: number) {
   const task = await prisma.task.findUnique({ where: { id } });
-  if (!task || task.userId !== userId) {
+  if (!task || (task.creatorId !== userId && task.assigneeId !== userId)) {
     throw new HttpError(404, "Tarefa não encontrada");
   }
   return task;
 }
 
 export async function getById(userId: number, id: number) {
-  const task = await findOwned(userId, id);
+  await findAccessible(userId, id);
+  const task = await prisma.task.findUnique({ where: { id }, include: taskInclude });
   const meta = await TaskMetaModel.findOne({ taskId: id }).lean();
   return { ...task, meta };
 }
 
 export async function create(userId: number, input: CreateInput) {
+  const assigneeId = input.assigneeId ?? userId;
+  if (assigneeId !== userId) {
+    await assertUserExists(assigneeId);
+  }
+
   const task = await prisma.task.create({
     data: {
       title: input.title,
       description: input.description,
       dueDate: input.dueDate ? new Date(input.dueDate) : null,
-      userId,
+      creatorId: userId,
+      assigneeId,
     },
+    include: taskInclude,
   });
 
   await TaskMetaModel.create({
@@ -68,13 +92,18 @@ export async function create(userId: number, input: CreateInput) {
 }
 
 export async function update(userId: number, id: number, input: UpdateInput) {
-  await findOwned(userId, id);
+  await findAccessible(userId, id);
+
+  if (input.assigneeId != null) {
+    await assertUserExists(input.assigneeId);
+  }
 
   const task = await prisma.task.update({
     where: { id },
     data: {
       title: input.title,
       description: input.description,
+      assigneeId: input.assigneeId === undefined ? undefined : input.assigneeId,
       dueDate:
         input.dueDate === undefined
           ? undefined
@@ -82,6 +111,7 @@ export async function update(userId: number, id: number, input: UpdateInput) {
             ? null
             : new Date(input.dueDate),
     },
+    include: taskInclude,
   });
 
   if (input.tags !== undefined || input.notes !== undefined) {
@@ -100,17 +130,18 @@ export async function update(userId: number, id: number, input: UpdateInput) {
 }
 
 export async function toggleComplete(userId: number, id: number) {
-  const current = await findOwned(userId, id);
+  const current = await findAccessible(userId, id);
   const task = await prisma.task.update({
     where: { id },
     data: { completed: !current.completed },
+    include: taskInclude,
   });
   await logActivity(id, task.completed ? "concluída" : "reaberta");
   return task;
 }
 
 export async function remove(userId: number, id: number): Promise<void> {
-  await findOwned(userId, id);
+  await findAccessible(userId, id);
   await prisma.task.delete({ where: { id } });
   await TaskMetaModel.deleteOne({ taskId: id });
 }

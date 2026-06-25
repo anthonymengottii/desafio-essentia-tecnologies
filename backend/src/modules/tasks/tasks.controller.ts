@@ -7,6 +7,7 @@ const createSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
   description: z.string().optional(),
   dueDate: z.string().datetime().optional(),
+  assigneeId: z.number().int().positive().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().optional(),
 });
@@ -15,6 +16,7 @@ const updateSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().optional(),
   dueDate: z.string().datetime().nullable().optional(),
+  assigneeId: z.number().int().positive().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().optional(),
 });
