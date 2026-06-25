@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { env } from "../config/env";
 import { HttpError } from "./errorHandler";
 
@@ -20,8 +20,12 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
 
   const token = header.slice(7);
   try {
-    const payload = jwt.verify(token, env.jwtSecret) as { sub: number };
-    req.userId = Number(payload.sub);
+    const payload = jwt.verify(token, env.jwtSecret) as JwtPayload;
+    const userId = Number(payload.sub);
+    if (!Number.isInteger(userId)) {
+      throw new HttpError(401, "Token inválido");
+    }
+    req.userId = userId;
     next();
   } catch {
     throw new HttpError(401, "Token inválido ou expirado");
