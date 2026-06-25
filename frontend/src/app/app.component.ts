@@ -14,6 +14,7 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  Menu,
 } from 'lucide-angular';
 import { AuthService } from './core/auth/auth.service';
 import { ToastComponent } from './shared/toast/toast.component';
@@ -37,17 +38,30 @@ export class AppComponent {
   readonly LogOutIcon = LogOut;
   readonly CollapseIcon = PanelLeftClose;
   readonly ExpandIcon = PanelLeftOpen;
+  readonly MenuIcon = Menu;
 
   readonly auth = inject(AuthService);
   private router = inject(Router);
 
   readonly collapsed = signal(localStorage.getItem(SIDEBAR_KEY) === '1');
+  readonly mobileOpen = signal(false);
   readonly pageTitle = signal(this.titleFor(this.router.url));
 
   constructor() {
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe((e) => this.pageTitle.set(this.titleFor(e.urlAfterRedirects)));
+      .subscribe((e) => {
+        this.pageTitle.set(this.titleFor(e.urlAfterRedirects));
+        this.mobileOpen.set(false); // fecha o drawer ao navegar
+      });
+  }
+
+  toggleMobile(): void {
+    this.mobileOpen.update((v) => !v);
+  }
+
+  closeMobile(): void {
+    this.mobileOpen.set(false);
   }
 
   readonly initials = computed(() => {

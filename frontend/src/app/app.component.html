@@ -1,14 +1,12 @@
 @if (auth.isLoggedIn()) {
-  <div class="shell" [class.collapsed]="collapsed()">
+  <div class="shell" [class.collapsed]="collapsed()" [class.mobile-open]="mobileOpen()">
     <!-- Sidebar fixa -->
     <aside class="sidebar">
       <div class="sidebar-head">
-        @if (!collapsed()) {
-          <div class="brand">
-            <strong>TechX</strong>
-            <small>Gerenciador de tarefas</small>
-          </div>
-        }
+        <div class="brand">
+          <strong>TechX</strong>
+          <small>Gerenciador de tarefas</small>
+        </div>
         <button
           class="icon-btn"
           (click)="toggleSidebar()"
@@ -20,9 +18,7 @@
       </div>
 
       <nav class="nav">
-        @if (!collapsed()) {
-          <span class="nav-label">Navegação</span>
-        }
+        <span class="nav-label">Navegação</span>
         <a routerLink="/tasks" routerLinkActive="active" class="nav-item" title="Lista">
           <lucide-icon [img]="ListIcon" [size]="18" />
           <span>Lista</span>
@@ -36,21 +32,28 @@
       <div class="sidebar-foot">
         <div class="user-info">
           <span class="avatar">{{ initials() }}</span>
-          @if (!collapsed()) {
-            <span class="user-name">{{ auth.user()?.name }}</span>
-          }
+          <span class="user-name">{{ auth.user()?.name }}</span>
         </div>
         <button class="logout-btn" (click)="logout()" title="Sair" aria-label="Sair">
           <lucide-icon [img]="LogOutIcon" [size]="16" />
-          @if (!collapsed()) {
-            <span>Sair</span>
-          }
+          <span>Sair</span>
         </button>
       </div>
     </aside>
 
+    <!-- Overlay do drawer (mobile) -->
+    <div class="sidebar-overlay" (click)="closeMobile()"></div>
+
     <!-- Topbar fixa -->
     <header class="topbar">
+      <button
+        class="icon-btn menu-btn"
+        (click)="toggleMobile()"
+        aria-label="Abrir menu"
+        title="Menu"
+      >
+        <lucide-icon [img]="MenuIcon" [size]="20" />
+      </button>
       <h2 class="page-title">{{ pageTitle() }}</h2>
     </header>
 

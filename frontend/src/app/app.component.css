@@ -114,7 +114,12 @@
   justify-content: center;
 }
 
-.shell.collapsed .nav-item span {
+/* Esconde rótulos quando minimizada (desktop) */
+.shell.collapsed .brand,
+.shell.collapsed .nav-label,
+.shell.collapsed .nav-item span,
+.shell.collapsed .user-name,
+.shell.collapsed .logout-btn span {
   display: none;
 }
 
@@ -221,6 +226,19 @@
   color: var(--text);
 }
 
+.menu-btn {
+  display: none;
+  margin-right: 0.75rem;
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 48, 0.45);
+  z-index: 45;
+}
+
 /* ===== Conteúdo ===== */
 .content {
   margin-left: var(--sb);
@@ -241,25 +259,59 @@
   padding: 1.5rem;
 }
 
-/* ===== Responsivo ===== */
-@media (max-width: 640px) {
-  .shell {
-    --sb: 64px;
+/* ===== Mobile: sidebar vira drawer ===== */
+@media (max-width: 768px) {
+  /* Sidebar full (com rótulos) deslizando da esquerda */
+  .sidebar {
+    width: 256px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 50;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
   }
 
-  .brand,
-  .nav-label,
-  .nav-item span,
-  .user-name,
-  .logout-btn span {
+  .shell.mobile-open .sidebar {
+    transform: translateX(0);
+  }
+
+  /* Ignora o minimizar no mobile: sempre mostra rótulos no drawer */
+  .shell.collapsed .brand,
+  .shell.collapsed .nav-label,
+  .shell.collapsed .nav-item span,
+  .shell.collapsed .user-name,
+  .shell.collapsed .logout-btn span {
+    display: revert;
+  }
+
+  .shell.collapsed .nav-item {
+    justify-content: flex-start;
+  }
+
+  .sidebar-head,
+  .shell.collapsed .user-info {
+    justify-content: flex-start;
+  }
+
+  /* Esconde o botão de minimizar (desktop) no mobile */
+  .sidebar-head .icon-btn {
     display: none;
   }
 
-  .nav-item,
-  .logout-btn,
-  .user-info,
-  .sidebar-head {
-    justify-content: center;
+  /* Topbar e conteúdo ocupam largura total */
+  .topbar {
+    left: 0;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .menu-btn {
+    display: inline-flex;
+  }
+
+  .shell.mobile-open .sidebar-overlay {
+    display: block;
   }
 
   .topbar,
