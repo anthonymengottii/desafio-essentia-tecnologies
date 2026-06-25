@@ -10,13 +10,16 @@
 }
 
 .board {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 1rem;
-  align-items: start;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
 }
 
 .column {
+  flex: 1 1 0;
+  min-width: 260px;
   background: #f1f2f8;
   border-radius: 12px;
   padding: 0.6rem;
@@ -109,10 +112,4 @@
   outline: 2px dashed var(--primary);
   outline-offset: -4px;
   border-radius: 10px;
-}
-
-@media (max-width: 720px) {
-  .board {
-    grid-template-columns: 1fr;
-  }
 }
