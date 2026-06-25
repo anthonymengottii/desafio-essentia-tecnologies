@@ -1,28 +1,30 @@
 <div class="list-header">
   <h3>Minhas tarefas</h3>
   <div class="list-header-right">
-    @if (tasks().length) {
-      <span class="counter">{{ pendingCount() }} pendente(s) de {{ tasks().length }}</span>
+    @if (store.tasks().length) {
+      <span class="counter">
+        {{ store.pendingCount() }} pendente(s) de {{ store.tasks().length }}
+      </span>
     }
-    <button class="btn btn-sm btn-icon" (click)="openCreate()">
+    <button class="btn btn-sm btn-icon" (click)="store.openCreate()">
       <lucide-icon [img]="PlusIcon" [size]="16" /> Nova tarefa
     </button>
   </div>
 </div>
 
 <section class="task-list">
-  @if (loading()) {
+  @if (store.loading()) {
     <p class="muted">Carregando...</p>
-  } @else if (tasks().length === 0) {
+  } @else if (store.tasks().length === 0) {
     <p class="muted">Nenhuma tarefa cadastrada. Clique em "Nova tarefa" para começar.</p>
   } @else {
-    @for (task of tasks(); track task.id) {
+    @for (task of store.tasks(); track task.id) {
       <div class="card task-item" [class.done]="task.status === 'CONCLUIDA'">
-        <div class="task-body clickable" (click)="openDetails(task)" title="Ver detalhes">
+        <div class="task-body clickable" (click)="store.openDetails(task)" title="Ver detalhes">
           <div class="task-title-row">
             <strong class="task-title">{{ task.title }}</strong>
             <span class="badge" [class]="'badge-' + task.status.toLowerCase()">
-              {{ statusLabels[task.status] }}
+              {{ store.statusLabels[task.status] }}
             </span>
           </div>
           @if (task.description) {
@@ -31,16 +33,16 @@
           <div class="task-people">
             <span class="person" title="Quem criou">
               <lucide-icon [img]="UserIcon" [size]="13" />
-              Criada por {{ task.creator?.id === currentUserId ? 'você' : task.creator?.name }}
+              Criada por {{ task.creator?.id === store.currentUserId ? 'você' : task.creator?.name }}
             </span>
             @if (task.assignee) {
               <span class="person assignee" title="Responsável">
                 <lucide-icon [img]="ArrowRightIcon" [size]="13" />
-                {{ task.assignee.id === currentUserId ? 'Você' : task.assignee.name }}
+                {{ task.assignee.id === store.currentUserId ? 'Você' : task.assignee.name }}
               </span>
             }
           </div>
-          @if (cardProgress(task); as p) {
+          @if (store.cardProgress(task); as p) {
             <div class="progress" title="{{ p.done }} de {{ p.total }} concluídos">
               <div class="progress-bar">
                 <div class="progress-fill" [style.width.%]="p.percent"></div>
@@ -50,7 +52,7 @@
           }
           <div class="task-meta">
             @if (task.dueDate) {
-              <span class="due" [class.overdue]="isOverdue(task)" title="Prazo">
+              <span class="due" [class.overdue]="store.isOverdue(task)" title="Prazo">
                 <lucide-icon [img]="CalendarIcon" [size]="13" />
                 {{ task.dueDate | date: 'dd/MM/yyyy' }}
               </span>
@@ -62,7 +64,12 @@
           </div>
         </div>
         <div class="task-actions">
-          <button class="icon-btn-danger" (click)="askDelete(task)" title="Excluir" aria-label="Excluir">
+          <button
+            class="icon-btn-danger"
+            (click)="store.askDelete(task)"
+            title="Excluir"
+            aria-label="Excluir"
+          >
             <lucide-icon [img]="Trash2Icon" [size]="16" />
           </button>
         </div>
@@ -71,268 +78,4 @@
   }
 </section>
 
-@if (modalOpen()) {
-  <div class="modal-backdrop" (click)="closeModal()">
-    <div
-      class="modal card"
-      role="dialog"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="modal-header">
-        <h3>{{ editingId() ? 'Editar tarefa' : 'Nova tarefa' }}</h3>
-        <button class="modal-close" type="button" (click)="closeModal()" aria-label="Fechar">
-          <lucide-icon [img]="XIcon" [size]="20" />
-        </button>
-      </div>
-
-      <form (ngSubmit)="save()">
-        <div class="field">
-          <label for="title">Título</label>
-          <input
-            id="title"
-            name="title"
-            [(ngModel)]="title"
-            required
-            placeholder="O que precisa ser feito?"
-          />
-        </div>
-
-        <div class="field">
-          <label for="description">Descrição</label>
-          <textarea id="description" name="description" [(ngModel)]="description" rows="3"></textarea>
-        </div>
-
-        <div class="field">
-          <label for="assignee">Atribuir a</label>
-          <select id="assignee" name="assignee" [(ngModel)]="assigneeId">
-            @for (u of users(); track u.id) {
-              <option [ngValue]="u.id">
-                {{ u.name }}{{ u.id === currentUserId ? ' (você)' : '' }}
-              </option>
-            }
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="status">Status</label>
-          <select id="status" name="status" [(ngModel)]="status">
-            @for (s of statusOptions; track s) {
-              <option [ngValue]="s">{{ statusLabels[s] }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="dueDate">Prazo</label>
-          <input id="dueDate" type="date" name="dueDate" [(ngModel)]="dueDate" />
-        </div>
-
-        <div class="field">
-          <label for="tags">Tags (separadas por vírgula)</label>
-          <input id="tags" name="tags" [(ngModel)]="tags" placeholder="trabalho, urgente" />
-        </div>
-
-        <div class="field">
-          <label>Checklist</label>
-          @if (formChecklist.length) {
-            <ul class="checklist">
-              @for (item of formChecklist; track $index) {
-                <li class="checklist-item" [class.done]="item.done">
-                  <label>
-                    <input
-                      type="checkbox"
-                      [checked]="item.done"
-                      (change)="toggleFormChecklistItem($index)"
-                    />
-                    <span>{{ item.text }}</span>
-                  </label>
-                  <button
-                    type="button"
-                    class="checklist-remove"
-                    (click)="removeFormChecklistItem($index)"
-                    aria-label="Remover item"
-                  >
-                    <lucide-icon [img]="XIcon" [size]="14" />
-                  </button>
-                </li>
-              }
-            </ul>
-          }
-          <div class="checklist-add">
-            <input
-              name="newFormChecklistText"
-              [(ngModel)]="newFormChecklistText"
-              placeholder="Adicionar item..."
-              (keydown.enter)="$event.preventDefault(); addFormChecklistItem()"
-            />
-            <button class="btn btn-sm btn-icon" type="button" (click)="addFormChecklistItem()">
-              <lucide-icon [img]="PlusIcon" [size]="14" /> Adicionar
-            </button>
-          </div>
-        </div>
-
-        @if (error()) {
-          <p class="error-msg">{{ error() }}</p>
-        }
-
-        <div class="form-actions">
-          <button class="btn btn-outline" type="button" (click)="closeModal()">Cancelar</button>
-          <button class="btn" type="submit">{{ editingId() ? 'Salvar' : 'Adicionar' }}</button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-
-@if (taskToDelete(); as task) {
-  <div class="modal-backdrop" (click)="cancelDelete()">
-    <div
-      class="modal card"
-      role="alertdialog"
-      aria-modal="true"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="modal-header">
-        <h3>Excluir tarefa</h3>
-        <button class="modal-close" type="button" (click)="cancelDelete()" aria-label="Fechar">
-          <lucide-icon [img]="XIcon" [size]="20" />
-        </button>
-      </div>
-
-      <p class="confirm-text">
-        Tem certeza que deseja excluir a tarefa <strong>"{{ task.title }}"</strong>? Essa ação não
-        pode ser desfeita.
-      </p>
-
-      <div class="form-actions">
-        <button class="btn btn-outline" type="button" (click)="cancelDelete()">Cancelar</button>
-        <button class="btn btn-danger" type="button" (click)="confirmDelete()">Excluir</button>
-      </div>
-    </div>
-  </div>
-}
-
-@if (detailTask(); as task) {
-  <div class="modal-backdrop" (click)="closeDetails()">
-    <div class="modal card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Detalhes da tarefa</h3>
-        <button class="modal-close" type="button" (click)="closeDetails()" aria-label="Fechar">
-          <lucide-icon [img]="XIcon" [size]="20" />
-        </button>
-      </div>
-
-      <div class="detail-body">
-        <div class="task-title-row">
-          <strong class="detail-title">{{ task.title }}</strong>
-          <span class="badge" [class]="'badge-' + task.status.toLowerCase()">
-            {{ statusLabels[task.status] }}
-          </span>
-        </div>
-
-        @if (task.description) {
-          <p class="detail-desc">{{ task.description }}</p>
-        } @else {
-          <p class="detail-desc muted-text">Sem descrição.</p>
-        }
-
-        <div class="detail-row">
-          <span class="detail-label">Criada por</span>
-          <span>{{ task.creator?.id === currentUserId ? 'Você' : task.creator?.name }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Responsável</span>
-          <span>
-            {{ task.assignee ? (task.assignee.id === currentUserId ? 'Você' : task.assignee.name) : '—' }}
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Prazo</span>
-          <span [class.overdue-text]="isOverdue(task)">
-            {{ task.dueDate ? (task.dueDate | date: 'dd/MM/yyyy') : '—' }}
-            @if (isOverdue(task)) { (vencido) }
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Criada em</span>
-          <span>{{ task.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-        </div>
-
-        @if (task.meta?.tags?.length) {
-          <div class="detail-row">
-            <span class="detail-label">Tags</span>
-            <span class="detail-tags">
-              @for (tag of task.meta?.tags ?? []; track tag) {
-                <span class="tag">{{ tag }}</span>
-              }
-            </span>
-          </div>
-        }
-
-        @if (task.meta?.notes) {
-          <div class="detail-row">
-            <span class="detail-label">Notas</span>
-            <span>{{ task.meta?.notes }}</span>
-          </div>
-        }
-
-        <div class="detail-section">
-          <span class="detail-label">
-            Checklist
-            @if (checklistProgress().total) {
-              <span class="checklist-progress">
-                {{ checklistProgress().done }}/{{ checklistProgress().total }}
-              </span>
-            }
-          </span>
-
-          @if (detailLoading()) {
-            <span class="muted-text">Carregando...</span>
-          } @else {
-            <ul class="checklist">
-              @for (item of checklist(); track $index) {
-                <li class="checklist-item" [class.done]="item.done">
-                  <label>
-                    <input
-                      type="checkbox"
-                      [checked]="item.done"
-                      (change)="toggleChecklistItem($index)"
-                    />
-                    <span>{{ item.text }}</span>
-                  </label>
-                  <button
-                    type="button"
-                    class="checklist-remove"
-                    (click)="removeChecklistItem($index)"
-                    aria-label="Remover item"
-                  >
-                    <lucide-icon [img]="XIcon" [size]="14" />
-                  </button>
-                </li>
-              }
-            </ul>
-
-            <form class="checklist-add" (ngSubmit)="addChecklistItem()">
-              <input
-                name="newChecklistText"
-                [(ngModel)]="newChecklistText"
-                placeholder="Adicionar item..."
-              />
-              <button class="btn btn-sm btn-icon" type="submit">
-                <lucide-icon [img]="PlusIcon" [size]="14" /> Adicionar
-              </button>
-            </form>
-          }
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button class="btn btn-outline" type="button" (click)="closeDetails()">Fechar</button>
-        <button class="btn btn-icon" type="button" (click)="editFromDetails()">
-          <lucide-icon [img]="PencilIcon" [size]="15" /> Editar
-        </button>
-      </div>
-    </div>
-  </div>
-}
+<app-task-modals />
