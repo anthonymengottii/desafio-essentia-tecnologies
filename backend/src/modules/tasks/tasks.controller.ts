@@ -5,6 +5,10 @@ import { HttpError } from "../../middleware/errorHandler";
 
 const statusEnum = z.enum(["PENDENTE", "EM_ANDAMENTO", "CONCLUIDA"]);
 
+const checklistSchema = z
+  .array(z.object({ text: z.string().min(1), done: z.boolean() }))
+  .optional();
+
 const createSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
   description: z.string().optional(),
@@ -13,6 +17,7 @@ const createSchema = z.object({
   assigneeId: z.number().int().positive().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().optional(),
+  checklist: checklistSchema,
 });
 
 const updateSchema = z.object({
@@ -23,6 +28,7 @@ const updateSchema = z.object({
   assigneeId: z.number().int().positive().nullable().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().optional(),
+  checklist: checklistSchema,
 });
 
 const statusSchema = z.object({ status: statusEnum });

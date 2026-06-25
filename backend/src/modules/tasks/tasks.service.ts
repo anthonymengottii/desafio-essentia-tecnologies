@@ -9,6 +9,11 @@ const STATUS_LABEL: Record<TaskStatus, string> = {
   CONCLUIDA: "concluída",
 };
 
+interface ChecklistItem {
+  text: string;
+  done: boolean;
+}
+
 interface CreateInput {
   title: string;
   description?: string;
@@ -17,6 +22,7 @@ interface CreateInput {
   assigneeId?: number | null;
   tags?: string[];
   notes?: string;
+  checklist?: ChecklistItem[];
 }
 
 interface UpdateInput {
@@ -27,6 +33,7 @@ interface UpdateInput {
   assigneeId?: number | null;
   tags?: string[];
   notes?: string;
+  checklist?: ChecklistItem[];
 }
 
 // Inclui dados públicos de quem criou e de quem é responsável.
@@ -98,6 +105,7 @@ export async function create(userId: number, input: CreateInput) {
       $set: {
         tags: input.tags ?? [],
         notes: input.notes,
+        checklist: input.checklist ?? [],
         activityLog: [{ action: "criada", at: new Date() }],
       },
     },
@@ -131,12 +139,17 @@ export async function update(userId: number, id: number, input: UpdateInput) {
     include: taskInclude,
   });
 
-  if (input.tags !== undefined || input.notes !== undefined) {
+  if (
+    input.tags !== undefined ||
+    input.notes !== undefined ||
+    input.checklist !== undefined
+  ) {
     await TaskMetaModel.updateOne(
       { taskId: id },
       {
         ...(input.tags !== undefined ? { tags: input.tags } : {}),
         ...(input.notes !== undefined ? { notes: input.notes } : {}),
+        ...(input.checklist !== undefined ? { checklist: input.checklist } : {}),
       },
       { upsert: true }
     );

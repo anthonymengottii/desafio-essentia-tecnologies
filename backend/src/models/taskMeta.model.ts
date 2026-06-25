@@ -8,11 +8,20 @@ const activitySchema = new Schema(
   { _id: false }
 );
 
+const checklistItemSchema = new Schema(
+  {
+    text: { type: String, required: true },
+    done: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
+
 const taskMetaSchema = new Schema(
   {
     taskId: { type: Number, required: true, unique: true, index: true },
     tags: { type: [String], default: [] },
     notes: { type: String },
+    checklist: { type: [checklistItemSchema], default: [] },
     activityLog: { type: [activitySchema], default: [] },
   },
   { timestamps: true }
