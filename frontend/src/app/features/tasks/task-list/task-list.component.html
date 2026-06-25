@@ -49,6 +49,12 @@
             </div>
           }
           <div class="task-meta">
+            @if (task.dueDate) {
+              <span class="due" [class.overdue]="isOverdue(task)" title="Prazo">
+                <lucide-icon [img]="CalendarIcon" [size]="13" />
+                {{ task.dueDate | date: 'dd/MM/yyyy' }}
+              </span>
+            }
             @for (tag of task.meta?.tags ?? []; track tag) {
               <span class="tag">{{ tag }}</span>
             }
@@ -125,6 +131,11 @@
               <option [ngValue]="s">{{ statusLabels[s] }}</option>
             }
           </select>
+        </div>
+
+        <div class="field">
+          <label for="dueDate">Prazo</label>
+          <input id="dueDate" type="date" name="dueDate" [(ngModel)]="dueDate" />
         </div>
 
         <div class="field">
@@ -244,6 +255,13 @@
           <span class="detail-label">Responsável</span>
           <span>
             {{ task.assignee ? (task.assignee.id === currentUserId ? 'Você' : task.assignee.name) : '—' }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Prazo</span>
+          <span [class.overdue-text]="isOverdue(task)">
+            {{ task.dueDate ? (task.dueDate | date: 'dd/MM/yyyy') : '—' }}
+            @if (isOverdue(task)) { (vencido) }
           </span>
         </div>
         <div class="detail-row">

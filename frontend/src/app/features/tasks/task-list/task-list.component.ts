@@ -9,6 +9,7 @@ import {
   Pencil,
   Trash2,
   X,
+  Calendar,
 } from 'lucide-angular';
 import { TaskService } from '../../../core/task.service';
 import { UserService } from '../../../core/user.service';
@@ -35,6 +36,7 @@ export class TaskListComponent implements OnInit {
   readonly PencilIcon = Pencil;
   readonly Trash2Icon = Trash2;
   readonly XIcon = X;
+  readonly CalendarIcon = Calendar;
 
   private taskService = inject(TaskService);
   private userService = inject(UserService);
@@ -61,6 +63,7 @@ export class TaskListComponent implements OnInit {
   tags = '';
   assigneeId: number | null = null;
   status: TaskStatus = 'PENDENTE';
+  dueDate = ''; // formato yyyy-MM-dd (input date)
   formChecklist: ChecklistItem[] = [];
   newFormChecklistText = '';
 
@@ -102,6 +105,7 @@ export class TaskListComponent implements OnInit {
       description: this.description.trim() || undefined,
       status: this.status,
       assigneeId: this.assigneeId,
+      dueDate: this.dueDate ? new Date(this.dueDate).toISOString() : null,
       tags: this.tags
         ? this.tags.split(',').map((t) => t.trim()).filter(Boolean)
         : undefined,
@@ -151,6 +155,17 @@ export class TaskListComponent implements OnInit {
     }
     this.closeDetails();
     this.startEdit(task);
+  }
+
+  /** True se a tarefa tem prazo vencido e ainda não foi concluída. */
+  isOverdue(task: Task): boolean {
+    if (!task.dueDate || task.status === 'CONCLUIDA') {
+      return false;
+    }
+    const due = new Date(task.dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return due < today;
   }
 
   /** Progresso da checklist para exibir barra no card. Null se não houver itens. */
@@ -211,6 +226,7 @@ export class TaskListComponent implements OnInit {
     this.tags = task.meta?.tags?.join(', ') ?? '';
     this.assigneeId = task.assigneeId ?? null;
     this.status = task.status;
+    this.dueDate = task.dueDate ? task.dueDate.substring(0, 10) : '';
     this.formChecklist = (task.meta?.checklist ?? []).map((i) => ({ ...i }));
     this.error.set('');
     this.modalOpen.set(true);
@@ -295,6 +311,7 @@ export class TaskListComponent implements OnInit {
     this.tags = '';
     this.assigneeId = this.currentUserId;
     this.status = 'PENDENTE';
+    this.dueDate = '';
     this.formChecklist = [];
     this.newFormChecklistText = '';
     this.error.set('');
