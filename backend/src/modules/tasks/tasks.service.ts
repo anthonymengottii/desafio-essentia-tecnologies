@@ -57,11 +57,19 @@ async function assertUserExists(userId: number): Promise<void> {
 
 export async function list(userId: number) {
   // Tarefas que o usuário criou OU que foram atribuídas a ele.
-  return prisma.task.findMany({
+  const tasks = await prisma.task.findMany({
     where: { OR: [{ creatorId: userId }, { assigneeId: userId }] },
     include: taskInclude,
     orderBy: { createdAt: "desc" },
   });
+
+  // Anexa metadados do Mongo (checklist/tags) para exibir progresso na listagem.
+  const metas = await TaskMetaModel.find({
+    taskId: { $in: tasks.map((t) => t.id) },
+  }).lean();
+  const metaByTaskId = new Map(metas.map((m) => [m.taskId, m]));
+
+  return tasks.map((task) => ({ ...task, meta: metaByTaskId.get(task.id) ?? null }));
 }
 
 /** Busca a task garantindo que o usuário é criador ou responsável. */
