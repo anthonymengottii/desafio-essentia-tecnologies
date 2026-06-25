@@ -2,6 +2,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { TaskService } from '../../core/task.service';
 import { UserService } from '../../core/user.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { ToastService } from '../../core/toast.service';
+import { FieldErrors, parseApiError } from '../../core/http-error';
 import {
   ChecklistItem,
   STATUS_LABELS,
@@ -10,6 +12,8 @@ import {
   TaskStatus,
 } from '../../core/models/task.model';
 import { User } from '../../core/models/user.model';
+
+export type SortBy = 'createdAt' | 'dueDate' | 'title';
 
 /**
  * Estado e ações compartilhados das tarefas (usados pela Lista e pelo Kanban),
@@ -20,6 +24,7 @@ export class TasksStore {
   private taskService = inject(TaskService);
   private userService = inject(UserService);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   readonly currentUserId = this.auth.user()?.id ?? null;
   readonly statusLabels = STATUS_LABELS;
@@ -29,6 +34,22 @@ export class TasksStore {
   users = signal<User[]>([]);
   loading = signal(false);
   error = signal('');
+
+  // Busca / filtros / ordenação
+  search = signal('');
+  filterAssignee = signal<number | 'all'>('all');
+  filterStatus = signal<TaskStatus | 'all'>('all');
+  sortBy = signal<SortBy>('createdAt');
+
+  hasActiveFilters = computed(
+    () =>
+      this.search().trim() !== '' ||
+      this.filterAssignee() !== 'all' ||
+      this.filterStatus() !== 'all'
+  );
+
+  /** Tarefas após busca + responsável + status, ordenadas (usado pela Lista). */
+  filteredTasks = computed(() => this.applyFilters(true));
 
   pendingCount = computed(() => this.tasks().filter((t) => t.status !== 'CONCLUIDA').length);
 
@@ -52,6 +73,13 @@ export class TasksStore {
   detailLoading = signal(false);
   newChecklistText = '';
 
+  // Erros de validação por campo no formulário de tarefa
+  formFieldErrors = signal<FieldErrors>({});
+
+  formErrorsFor(field: string): string[] {
+    return this.formFieldErrors()[field] ?? [];
+  }
+
   init(): void {
     this.load();
     if (!this.users().length) {
@@ -73,8 +101,53 @@ export class TasksStore {
     });
   }
 
+  /** Aplica busca + responsável (+ status opcional) e ordena. */
+  private applyFilters(includeStatus: boolean): Task[] {
+    const q = this.search().trim().toLowerCase();
+    const assignee = this.filterAssignee();
+    const status = this.filterStatus();
+
+    const list = this.tasks().filter((t) => {
+      if (q && !`${t.title} ${t.description ?? ''}`.toLowerCase().includes(q)) {
+        return false;
+      }
+      if (assignee !== 'all' && t.assigneeId !== assignee) {
+        return false;
+      }
+      if (includeStatus && status !== 'all' && t.status !== status) {
+        return false;
+      }
+      return true;
+    });
+
+    return this.sortTasks(list);
+  }
+
+  private sortTasks(list: Task[]): Task[] {
+    const by = this.sortBy();
+    return [...list].sort((a, b) => {
+      if (by === 'title') {
+        return a.title.localeCompare(b.title);
+      }
+      if (by === 'dueDate') {
+        // sem prazo vai para o fim
+        if (!a.dueDate) return b.dueDate ? 1 : 0;
+        if (!b.dueDate) return -1;
+        return a.dueDate.localeCompare(b.dueDate);
+      }
+      return b.createdAt.localeCompare(a.createdAt); // createdAt desc
+    });
+  }
+
+  /** Tarefas de uma coluna do Kanban: busca + responsável + ordenação (status pela coluna). */
   tasksByStatus(status: TaskStatus): Task[] {
-    return this.tasks().filter((t) => t.status === status);
+    return this.applyFilters(false).filter((t) => t.status === status);
+  }
+
+  clearFilters(): void {
+    this.search.set('');
+    this.filterAssignee.set('all');
+    this.filterStatus.set('all');
   }
 
   // ===== Helpers de exibição =====
@@ -106,7 +179,11 @@ export class TasksStore {
       list.map((t) => (t.id === task.id ? { ...t, status } : t))
     );
     this.taskService.update(task.id, { status }).subscribe({
-      error: () => this.load(), // reverte recarregando em caso de erro
+      next: () => this.toast.success(`Movida para "${this.statusLabels[status]}"`),
+      error: () => {
+        this.toast.error('Erro ao mover tarefa');
+        this.load(); // reverte recarregando
+      },
     });
   }
 
@@ -126,6 +203,7 @@ export class TasksStore {
     this.dueDate = task.dueDate ? task.dueDate.substring(0, 10) : '';
     this.formChecklist = (task.meta?.checklist ?? []).map((i) => ({ ...i }));
     this.error.set('');
+    this.formFieldErrors.set({});
     this.modalOpen.set(true);
   }
 
@@ -148,10 +226,18 @@ export class TasksStore {
 
     req.subscribe({
       next: () => {
+        this.toast.success(id ? 'Tarefa atualizada' : 'Tarefa criada');
         this.closeModal();
         this.load();
       },
-      error: (err) => this.error.set(err?.error?.error ?? 'Erro ao salvar tarefa'),
+      error: (err) => {
+        const parsed = parseApiError(err, 'Erro ao salvar tarefa');
+        this.formFieldErrors.set(parsed.fieldErrors);
+        this.error.set(Object.keys(parsed.fieldErrors).length ? '' : parsed.message);
+        if (!Object.keys(parsed.fieldErrors).length) {
+          this.toast.error(parsed.message);
+        }
+      },
     });
   }
 
@@ -190,6 +276,7 @@ export class TasksStore {
     this.formChecklist = [];
     this.newFormChecklistText = '';
     this.error.set('');
+    this.formFieldErrors.set({});
   }
 
   // ===== Detalhes =====
@@ -259,7 +346,9 @@ export class TasksStore {
     this.tasks.update((list) =>
       list.map((t) => (t.id === task.id ? { ...t, meta: updatedMeta } : t))
     );
-    this.taskService.update(task.id, { checklist }).subscribe();
+    this.taskService.update(task.id, { checklist }).subscribe({
+      error: () => this.toast.error('Erro ao atualizar checklist'),
+    });
   }
 
   // ===== Exclusão =====
@@ -280,8 +369,12 @@ export class TasksStore {
       next: () => {
         this.tasks.update((list) => list.filter((t) => t.id !== task.id));
         this.taskToDelete.set(null);
+        this.toast.success('Tarefa excluída');
       },
-      error: () => this.taskToDelete.set(null),
+      error: () => {
+        this.taskToDelete.set(null);
+        this.toast.error('Erro ao excluir tarefa');
+      },
     });
   }
 
