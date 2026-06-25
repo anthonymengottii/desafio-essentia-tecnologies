@@ -14,6 +14,8 @@ Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desaf
 - Listagem de tarefas do usuário autenticado
 - Criar, editar e excluir tarefas
 - Status de tarefa com badges: **Pendente**, **Em andamento**, **Concluída** (troca rápida na lista)
+- Prazo (data de vencimento) com destaque visual para tarefas vencidas
+- Checklist de subitens por tarefa, com barra de progresso no card
 - Atribuir tarefas a outros usuários; cada tarefa registra quem criou e o responsável
 - Listagem mostra tarefas criadas pelo usuário **ou** atribuídas a ele
 - Tags e histórico de atividades de cada tarefa (MongoDB)
