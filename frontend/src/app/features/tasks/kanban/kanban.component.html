@@ -1,0 +1,74 @@
+<div class="kanban-header">
+  <h3>Kanban</h3>
+  <button class="btn btn-sm btn-icon" (click)="store.openCreate()">
+    <lucide-icon [img]="PlusIcon" [size]="16" /> Nova tarefa
+  </button>
+</div>
+
+@if (store.loading()) {
+  <p class="muted">Carregando...</p>
+} @else {
+  <div class="board" cdkDropListGroup>
+    @for (col of store.statusOptions; track col) {
+      <div class="column">
+        <div class="column-header" [class]="'col-' + col.toLowerCase()">
+          <span>{{ store.statusLabels[col] }}</span>
+          <span class="column-count">{{ store.tasksByStatus(col).length }}</span>
+        </div>
+
+        <div
+          class="column-body"
+          cdkDropList
+          [cdkDropListData]="col"
+          (cdkDropListDropped)="drop($event, col)"
+        >
+          @for (task of store.tasksByStatus(col); track task.id) {
+            <div class="card kanban-card" cdkDrag [cdkDragData]="task">
+              <div class="kanban-card-body" (click)="store.openDetails(task)">
+                <strong class="task-title">{{ task.title }}</strong>
+
+                @if (store.cardProgress(task); as p) {
+                  <div class="progress">
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width.%]="p.percent"></div>
+                    </div>
+                    <span class="progress-text">{{ p.done }}/{{ p.total }}</span>
+                  </div>
+                }
+
+                <div class="task-meta">
+                  @if (task.dueDate) {
+                    <span class="due" [class.overdue]="store.isOverdue(task)" title="Prazo">
+                      <lucide-icon [img]="CalendarIcon" [size]="13" />
+                      {{ task.dueDate | date: 'dd/MM/yyyy' }}
+                    </span>
+                  }
+                  @if (task.assignee) {
+                    <span class="person assignee" title="Responsável">
+                      <lucide-icon [img]="ArrowRightIcon" [size]="13" />
+                      {{ task.assignee.id === store.currentUserId ? 'Você' : task.assignee.name }}
+                    </span>
+                  }
+                </div>
+              </div>
+              <button
+                class="icon-btn-danger"
+                (click)="store.askDelete(task)"
+                title="Excluir"
+                aria-label="Excluir"
+              >
+                <lucide-icon [img]="Trash2Icon" [size]="15" />
+              </button>
+            </div>
+          }
+
+          @if (!store.tasksByStatus(col).length) {
+            <p class="column-empty">Nenhuma tarefa</p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<app-task-modals />
