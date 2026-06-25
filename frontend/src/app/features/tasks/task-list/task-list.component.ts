@@ -1,6 +1,15 @@
 import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  LucideAngularModule,
+  User as UserIcon,
+  ArrowRight,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+} from 'lucide-angular';
 import { TaskService } from '../../../core/task.service';
 import { UserService } from '../../../core/user.service';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -14,11 +23,18 @@ import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-task-list',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, LucideAngularModule],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.css',
 })
 export class TaskListComponent implements OnInit {
+  readonly UserIcon = UserIcon;
+  readonly ArrowRightIcon = ArrowRight;
+  readonly PlusIcon = Plus;
+  readonly PencilIcon = Pencil;
+  readonly Trash2Icon = Trash2;
+  readonly XIcon = X;
+
   private taskService = inject(TaskService);
   private userService = inject(UserService);
   private auth = inject(AuthService);

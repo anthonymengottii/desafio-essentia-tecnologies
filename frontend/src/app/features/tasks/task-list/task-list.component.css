@@ -126,11 +126,22 @@
 }
 
 .person {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   font-size: 0.74rem;
   color: var(--text-muted);
   background: #f3f4f6;
   padding: 0.12rem 0.5rem;
   border-radius: 8px;
+}
+
+.person lucide-icon {
+  display: inline-flex;
+}
+
+.modal-close lucide-icon {
+  display: inline-flex;
 }
 
 .person.assignee {

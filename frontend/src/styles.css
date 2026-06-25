@@ -178,6 +178,16 @@ textarea.invalid:focus {
   font-size: 0.8rem;
 }
 
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-icon lucide-icon {
+  display: inline-flex;
+}
+
 .error-msg {
   color: var(--danger);
   font-size: 0.85rem;

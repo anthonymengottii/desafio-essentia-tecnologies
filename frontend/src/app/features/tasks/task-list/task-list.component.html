@@ -4,7 +4,9 @@
     @if (tasks().length) {
       <span class="counter">{{ pendingCount() }} pendente(s) de {{ tasks().length }}</span>
     }
-    <button class="btn btn-sm" (click)="openCreate()">+ Nova tarefa</button>
+    <button class="btn btn-sm btn-icon" (click)="openCreate()">
+      <lucide-icon [img]="PlusIcon" [size]="16" /> Nova tarefa
+    </button>
   </div>
 </div>
 
@@ -28,11 +30,13 @@
           }
           <div class="task-people">
             <span class="person" title="Quem criou">
-              👤 Criada por {{ task.creator?.id === currentUserId ? 'você' : task.creator?.name }}
+              <lucide-icon [img]="UserIcon" [size]="13" />
+              Criada por {{ task.creator?.id === currentUserId ? 'você' : task.creator?.name }}
             </span>
             @if (task.assignee) {
               <span class="person assignee" title="Responsável">
-                ➡ {{ task.assignee.id === currentUserId ? 'Você' : task.assignee.name }}
+                <lucide-icon [img]="ArrowRightIcon" [size]="13" />
+                {{ task.assignee.id === currentUserId ? 'Você' : task.assignee.name }}
               </span>
             }
           </div>
@@ -54,8 +58,12 @@
               <option [ngValue]="s">{{ statusLabels[s] }}</option>
             }
           </select>
-          <button class="btn btn-sm btn-outline" (click)="startEdit(task)">Editar</button>
-          <button class="btn btn-sm btn-danger" (click)="askDelete(task)">Excluir</button>
+          <button class="btn btn-sm btn-outline btn-icon" (click)="startEdit(task)">
+            <lucide-icon [img]="PencilIcon" [size]="14" /> Editar
+          </button>
+          <button class="btn btn-sm btn-danger btn-icon" (click)="askDelete(task)">
+            <lucide-icon [img]="Trash2Icon" [size]="14" /> Excluir
+          </button>
         </div>
       </div>
     }
@@ -73,7 +81,7 @@
       <div class="modal-header">
         <h3>{{ editingId() ? 'Editar tarefa' : 'Nova tarefa' }}</h3>
         <button class="modal-close" type="button" (click)="closeModal()" aria-label="Fechar">
-          ×
+          <lucide-icon [img]="XIcon" [size]="20" />
         </button>
       </div>
 
@@ -143,7 +151,7 @@
       <div class="modal-header">
         <h3>Excluir tarefa</h3>
         <button class="modal-close" type="button" (click)="cancelDelete()" aria-label="Fechar">
-          ×
+          <lucide-icon [img]="XIcon" [size]="20" />
         </button>
       </div>
 

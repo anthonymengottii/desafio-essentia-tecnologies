@@ -1,15 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { LucideAngularModule, Eye, EyeOff } from 'lucide-angular';
 import { AuthService } from '../../../core/auth/auth.service';
 import { FieldErrors, parseApiError } from '../../../core/http-error';
 
 @Component({
   selector: 'app-register',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {
+  readonly EyeIcon = Eye;
+  readonly EyeOffIcon = EyeOff;
+
   private auth = inject(AuthService);
   private router = inject(Router);
 

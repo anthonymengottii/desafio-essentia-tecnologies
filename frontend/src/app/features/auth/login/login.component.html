@@ -37,7 +37,7 @@
           (click)="showPassword.set(!showPassword())"
           [attr.aria-label]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
         >
-          {{ showPassword() ? '🙈' : '👁' }}
+          <lucide-icon [img]="showPassword() ? EyeOffIcon : EyeIcon" [size]="18" />
         </button>
       </div>
       @for (msg of errorsFor('password'); track msg) {
