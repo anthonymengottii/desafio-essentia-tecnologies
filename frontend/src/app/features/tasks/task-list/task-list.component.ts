@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../../core/task.service';
@@ -18,7 +18,8 @@ export class TaskListComponent implements OnInit {
   loading = signal(false);
   error = signal('');
 
-  // Estado do formulário (criação/edição)
+  // Estado do modal de formulário (criação/edição)
+  modalOpen = signal(false);
   editingId = signal<number | null>(null);
   title = '';
   description = '';
@@ -61,11 +62,16 @@ export class TaskListComponent implements OnInit {
 
     req.subscribe({
       next: () => {
-        this.resetForm();
+        this.closeModal();
         this.load();
       },
       error: (err) => this.error.set(err?.error?.error ?? 'Erro ao salvar tarefa'),
     });
+  }
+
+  openCreate(): void {
+    this.resetForm();
+    this.modalOpen.set(true);
   }
 
   startEdit(task: Task): void {
@@ -73,10 +79,20 @@ export class TaskListComponent implements OnInit {
     this.title = task.title;
     this.description = task.description ?? '';
     this.tags = task.meta?.tags?.join(', ') ?? '';
+    this.error.set('');
+    this.modalOpen.set(true);
   }
 
-  cancelEdit(): void {
+  closeModal(): void {
+    this.modalOpen.set(false);
     this.resetForm();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.modalOpen()) {
+      this.closeModal();
+    }
   }
 
   toggle(task: Task): void {
