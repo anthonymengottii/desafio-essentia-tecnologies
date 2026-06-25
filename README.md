@@ -14,6 +14,8 @@ Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desaf
 - Listagem de tarefas do usuário autenticado
 - Criar, editar e excluir tarefas
 - Marcar tarefa como concluída / não concluída
+- Atribuir tarefas a outros usuários; cada tarefa registra quem criou e o responsável
+- Listagem mostra tarefas criadas pelo usuário **ou** atribuídas a ele
 - Tags e histórico de atividades de cada tarefa (MongoDB)
 
 ---
@@ -71,7 +73,8 @@ Variáveis de ambiente (`backend/.env`):
 | ------ | --------------------------- | ---- | ---------------------------------- |
 | POST   | `/api/auth/register`        | —    | Cadastra usuário e retorna token   |
 | POST   | `/api/auth/login`           | —    | Autentica e retorna token          |
-| GET    | `/api/tasks`                | ✅   | Lista tarefas do usuário           |
+| GET    | `/api/users`                | ✅   | Lista usuários (para atribuição)   |
+| GET    | `/api/tasks`                | ✅   | Lista tarefas criadas por ou atribuídas ao usuário |
 | POST   | `/api/tasks`                | ✅   | Cria tarefa                        |
 | GET    | `/api/tasks/:id`            | ✅   | Detalha tarefa (+ metadados Mongo) |
 | PUT    | `/api/tasks/:id`            | ✅   | Edita tarefa                       |
