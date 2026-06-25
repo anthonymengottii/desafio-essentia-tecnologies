@@ -1,0 +1,64 @@
+<section class="card form-card">
+  <h3>{{ editingId() ? 'Editar tarefa' : 'Nova tarefa' }}</h3>
+  <form (ngSubmit)="save()">
+    <div class="field">
+      <label for="title">Título</label>
+      <input id="title" name="title" [(ngModel)]="title" required placeholder="O que precisa ser feito?" />
+    </div>
+
+    <div class="field">
+      <label for="description">Descrição</label>
+      <textarea id="description" name="description" [(ngModel)]="description" rows="2"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="tags">Tags (separadas por vírgula)</label>
+      <input id="tags" name="tags" [(ngModel)]="tags" placeholder="trabalho, urgente" />
+    </div>
+
+    <div class="form-actions">
+      <button class="btn" type="submit">{{ editingId() ? 'Salvar' : 'Adicionar' }}</button>
+      @if (editingId()) {
+        <button class="btn btn-sm" type="button" (click)="cancelEdit()">Cancelar</button>
+      }
+    </div>
+  </form>
+  @if (error()) {
+    <p class="error-msg">{{ error() }}</p>
+  }
+</section>
+
+<section class="task-list">
+  @if (loading()) {
+    <p class="muted">Carregando...</p>
+  } @else if (tasks().length === 0) {
+    <p class="muted">Nenhuma tarefa cadastrada. Adicione a primeira acima.</p>
+  } @else {
+    @for (task of tasks(); track task.id) {
+      <div class="card task-item" [class.done]="task.completed">
+        <input
+          type="checkbox"
+          [checked]="task.completed"
+          (change)="toggle(task)"
+          title="Marcar como concluída"
+        />
+        <div class="task-body">
+          <strong class="task-title">{{ task.title }}</strong>
+          @if (task.description) {
+            <p class="task-desc">{{ task.description }}</p>
+          }
+          <div class="task-meta">
+            @for (tag of task.meta?.tags ?? []; track tag) {
+              <span class="tag">{{ tag }}</span>
+            }
+            <span class="date">{{ task.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="task-actions">
+          <button class="btn btn-sm" (click)="startEdit(task)">Editar</button>
+          <button class="btn btn-sm btn-danger" (click)="remove(task)">Excluir</button>
+        </div>
+      </div>
+    }
+  }
+</section>
