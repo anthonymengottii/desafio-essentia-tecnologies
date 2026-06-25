@@ -1,0 +1,16 @@
+<div class="toast-stack">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [class]="'toast-' + toast.type" role="status">
+      <lucide-icon [img]="toast.type === 'success' ? SuccessIcon : ErrorIcon" [size]="18" />
+      <span class="toast-msg">{{ toast.message }}</span>
+      <button
+        class="toast-close"
+        type="button"
+        (click)="toastService.dismiss(toast.id)"
+        aria-label="Fechar"
+      >
+        <lucide-icon [img]="XIcon" [size]="15" />
+      </button>
+    </div>
+  }
+</div>

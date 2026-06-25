@@ -9,12 +9,13 @@ import {
   PanelLeftOpen,
 } from 'lucide-angular';
 import { AuthService } from './core/auth/auth.service';
+import { ToastComponent } from './shared/toast/toast.component';
 
 const SIDEBAR_KEY = 'techx_sidebar_collapsed';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, ToastComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
 })
