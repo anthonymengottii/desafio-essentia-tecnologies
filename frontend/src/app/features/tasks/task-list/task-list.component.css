@@ -274,6 +274,8 @@
 .modal {
   width: 100%;
   max-width: 460px;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
   box-shadow: var(--shadow);
   animation: modal-pop 0.18s ease;
 }
