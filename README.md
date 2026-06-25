@@ -13,7 +13,7 @@ Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desaf
 - Cadastro e login de usuários (JWT)
 - Listagem de tarefas do usuário autenticado
 - Criar, editar e excluir tarefas
-- Marcar tarefa como concluída / não concluída
+- Status de tarefa com badges: **Pendente**, **Em andamento**, **Concluída** (troca rápida na lista)
 - Atribuir tarefas a outros usuários; cada tarefa registra quem criou e o responsável
 - Listagem mostra tarefas criadas pelo usuário **ou** atribuídas a ele
 - Tags e histórico de atividades de cada tarefa (MongoDB)
@@ -78,7 +78,7 @@ Variáveis de ambiente (`backend/.env`):
 | POST   | `/api/tasks`                | ✅   | Cria tarefa                        |
 | GET    | `/api/tasks/:id`            | ✅   | Detalha tarefa (+ metadados Mongo) |
 | PUT    | `/api/tasks/:id`            | ✅   | Edita tarefa                       |
-| PATCH  | `/api/tasks/:id/complete`   | ✅   | Alterna conclusão                  |
+| PATCH  | `/api/tasks/:id/status`     | ✅   | Altera status (PENDENTE/EM_ANDAMENTO/CONCLUIDA) |
 | DELETE | `/api/tasks/:id`            | ✅   | Remove tarefa                      |
 
 Rotas com ✅ exigem o header `Authorization: Bearer <token>`.
