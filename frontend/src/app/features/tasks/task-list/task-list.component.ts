@@ -61,6 +61,8 @@ export class TaskListComponent implements OnInit {
   tags = '';
   assigneeId: number | null = null;
   status: TaskStatus = 'PENDENTE';
+  formChecklist: ChecklistItem[] = [];
+  newFormChecklistText = '';
 
   // Estado do modal de exclusão
   taskToDelete = signal<Task | null>(null);
@@ -103,6 +105,7 @@ export class TaskListComponent implements OnInit {
       tags: this.tags
         ? this.tags.split(',').map((t) => t.trim()).filter(Boolean)
         : undefined,
+      checklist: this.formChecklist,
     };
 
     const id = this.editingId();
@@ -148,6 +151,16 @@ export class TaskListComponent implements OnInit {
     }
     this.closeDetails();
     this.startEdit(task);
+  }
+
+  /** Progresso da checklist para exibir barra no card. Null se não houver itens. */
+  cardProgress(task: Task): { done: number; total: number; percent: number } | null {
+    const items = task.meta?.checklist ?? [];
+    if (!items.length) {
+      return null;
+    }
+    const done = items.filter((i) => i.done).length;
+    return { done, total: items.length, percent: Math.round((done / items.length) * 100) };
   }
 
   // ===== Checklist (gerenciada no modal de detalhes) =====
@@ -198,8 +211,29 @@ export class TaskListComponent implements OnInit {
     this.tags = task.meta?.tags?.join(', ') ?? '';
     this.assigneeId = task.assigneeId ?? null;
     this.status = task.status;
+    this.formChecklist = (task.meta?.checklist ?? []).map((i) => ({ ...i }));
     this.error.set('');
     this.modalOpen.set(true);
+  }
+
+  // Checklist dentro do formulário (criação/edição) — salva junto no submit.
+  addFormChecklistItem(): void {
+    const text = this.newFormChecklistText.trim();
+    if (!text) {
+      return;
+    }
+    this.formChecklist = [...this.formChecklist, { text, done: false }];
+    this.newFormChecklistText = '';
+  }
+
+  toggleFormChecklistItem(index: number): void {
+    this.formChecklist = this.formChecklist.map((item, i) =>
+      i === index ? { ...item, done: !item.done } : item
+    );
+  }
+
+  removeFormChecklistItem(index: number): void {
+    this.formChecklist = this.formChecklist.filter((_, i) => i !== index);
   }
 
   closeModal(): void {
@@ -261,6 +295,8 @@ export class TaskListComponent implements OnInit {
     this.tags = '';
     this.assigneeId = this.currentUserId;
     this.status = 'PENDENTE';
+    this.formChecklist = [];
+    this.newFormChecklistText = '';
     this.error.set('');
   }
 }

@@ -40,6 +40,14 @@
               </span>
             }
           </div>
+          @if (cardProgress(task); as p) {
+            <div class="progress" title="{{ p.done }} de {{ p.total }} concluídos">
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="p.percent"></div>
+              </div>
+              <span class="progress-text">{{ p.done }}/{{ p.total }}</span>
+            </div>
+          }
           <div class="task-meta">
             @for (tag of task.meta?.tags ?? []; track tag) {
               <span class="tag">{{ tag }}</span>
@@ -122,6 +130,45 @@
         <div class="field">
           <label for="tags">Tags (separadas por vírgula)</label>
           <input id="tags" name="tags" [(ngModel)]="tags" placeholder="trabalho, urgente" />
+        </div>
+
+        <div class="field">
+          <label>Checklist</label>
+          @if (formChecklist.length) {
+            <ul class="checklist">
+              @for (item of formChecklist; track $index) {
+                <li class="checklist-item" [class.done]="item.done">
+                  <label>
+                    <input
+                      type="checkbox"
+                      [checked]="item.done"
+                      (change)="toggleFormChecklistItem($index)"
+                    />
+                    <span>{{ item.text }}</span>
+                  </label>
+                  <button
+                    type="button"
+                    class="checklist-remove"
+                    (click)="removeFormChecklistItem($index)"
+                    aria-label="Remover item"
+                  >
+                    <lucide-icon [img]="XIcon" [size]="14" />
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+          <div class="checklist-add">
+            <input
+              name="newFormChecklistText"
+              [(ngModel)]="newFormChecklistText"
+              placeholder="Adicionar item..."
+              (keydown.enter)="$event.preventDefault(); addFormChecklistItem()"
+            />
+            <button class="btn btn-sm btn-icon" type="button" (click)="addFormChecklistItem()">
+              <lucide-icon [img]="PlusIcon" [size]="14" /> Adicionar
+            </button>
+          </div>
         </div>
 
         @if (error()) {
