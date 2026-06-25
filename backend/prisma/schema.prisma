@@ -17,11 +17,17 @@ model User {
   assignedTasks Task[]   @relation("AssignedTasks")
 }
 
+enum TaskStatus {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+}
+
 model Task {
-  id          Int       @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
-  description String?   @db.Text
-  completed   Boolean   @default(false)
+  description String?    @db.Text
+  status      TaskStatus @default(PENDENTE)
   dueDate     DateTime?
   creatorId   Int
   creator     User      @relation("CreatedTasks", fields: [creatorId], references: [id], onDelete: Cascade)

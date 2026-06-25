@@ -1,10 +1,18 @@
+import { TaskStatus } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { TaskMetaModel } from "../../models/taskMeta.model";
 import { HttpError } from "../../middleware/errorHandler";
 
+const STATUS_LABEL: Record<TaskStatus, string> = {
+  PENDENTE: "pendente",
+  EM_ANDAMENTO: "em andamento",
+  CONCLUIDA: "concluída",
+};
+
 interface CreateInput {
   title: string;
   description?: string;
+  status?: TaskStatus;
   dueDate?: string;
   assigneeId?: number | null;
   tags?: string[];
@@ -14,6 +22,7 @@ interface CreateInput {
 interface UpdateInput {
   title?: string;
   description?: string;
+  status?: TaskStatus;
   dueDate?: string | null;
   assigneeId?: number | null;
   tags?: string[];
@@ -74,6 +83,7 @@ export async function create(userId: number, input: CreateInput) {
     data: {
       title: input.title,
       description: input.description,
+      status: input.status ?? "PENDENTE",
       dueDate: input.dueDate ? new Date(input.dueDate) : null,
       creatorId: userId,
       assigneeId,
@@ -81,12 +91,18 @@ export async function create(userId: number, input: CreateInput) {
     include: taskInclude,
   });
 
-  await TaskMetaModel.create({
-    taskId: task.id,
-    tags: input.tags ?? [],
-    notes: input.notes,
-    activityLog: [{ action: "criada", at: new Date() }],
-  });
+  // upsert evita colisão caso exista metadado órfão (ex.: após reset do MySQL).
+  await TaskMetaModel.updateOne(
+    { taskId: task.id },
+    {
+      $set: {
+        tags: input.tags ?? [],
+        notes: input.notes,
+        activityLog: [{ action: "criada", at: new Date() }],
+      },
+    },
+    { upsert: true }
+  );
 
   return task;
 }
@@ -103,6 +119,7 @@ export async function update(userId: number, id: number, input: UpdateInput) {
     data: {
       title: input.title,
       description: input.description,
+      status: input.status,
       assigneeId: input.assigneeId === undefined ? undefined : input.assigneeId,
       dueDate:
         input.dueDate === undefined
@@ -129,14 +146,14 @@ export async function update(userId: number, id: number, input: UpdateInput) {
   return task;
 }
 
-export async function toggleComplete(userId: number, id: number) {
-  const current = await findAccessible(userId, id);
+export async function setStatus(userId: number, id: number, status: TaskStatus) {
+  await findAccessible(userId, id);
   const task = await prisma.task.update({
     where: { id },
-    data: { completed: !current.completed },
+    data: { status },
     include: taskInclude,
   });
-  await logActivity(id, task.completed ? "concluída" : "reaberta");
+  await logActivity(id, `status: ${STATUS_LABEL[status]}`);
   return task;
 }
 
