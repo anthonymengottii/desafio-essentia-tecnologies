@@ -96,6 +96,9 @@ API disponível em **http://localhost:3333**.
 
 > Após o seed, entre com **`demo@techx.com` / `demo123`** para ver o app já com dados.
 
+> **Dica:** se o `prisma generate`/`migrate` parecer travado, normalmente é a checagem de versão do
+> Prisma em redes restritas. O projeto já desabilita isso via `CHECKPOINT_DISABLE=1` no `.env`/Docker.
+
 Variáveis de ambiente (`backend/.env`):
 
 | Variável        | Descrição                                  |
