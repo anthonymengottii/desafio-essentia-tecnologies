@@ -20,6 +20,7 @@ export interface Task {
   title: string;
   description?: string | null;
   status: TaskStatus;
+  order: number;
   dueDate?: string | null;
   creatorId: number;
   creator?: User;

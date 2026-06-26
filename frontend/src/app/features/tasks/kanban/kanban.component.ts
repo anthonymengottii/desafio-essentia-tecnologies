@@ -5,6 +5,8 @@ import {
   CdkDrag,
   CdkDropList,
   CdkDropListGroup,
+  moveItemInArray,
+  transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import {
   LucideAngularModule,
@@ -47,10 +49,21 @@ export class KanbanComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<TaskStatus>, target: TaskStatus): void {
+    const task = event.item.data as Task;
+    const source = event.previousContainer.data;
+
     if (event.previousContainer === event.container) {
+      // Reordena dentro da mesma coluna.
+      const ids = this.store.tasksByStatus(target).map((t) => t.id);
+      moveItemInArray(ids, event.previousIndex, event.currentIndex);
+      this.store.applyReorder({ [target]: ids }, task.id, target);
       return;
     }
-    const task = event.item.data as Task;
-    this.store.changeStatus(task, target);
+
+    // Move entre colunas: atualiza origem e destino.
+    const sourceIds = this.store.tasksByStatus(source).map((t) => t.id);
+    const targetIds = this.store.tasksByStatus(target).map((t) => t.id);
+    transferArrayItem(sourceIds, targetIds, event.previousIndex, event.currentIndex);
+    this.store.applyReorder({ [source]: sourceIds, [target]: targetIds }, task.id, target);
   }
 }

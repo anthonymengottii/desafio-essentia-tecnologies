@@ -12,6 +12,8 @@ import { TasksStore } from '../tasks.store';
 export class TaskFiltersComponent {
   /** Exibe o filtro de status (apenas na Lista; no Kanban a coluna já é o status). */
   @Input() showStatus = true;
+  /** Exibe o seletor de ordenação (Lista; no Kanban a ordem é manual). */
+  @Input() showSort = true;
 
   readonly SearchIcon = Search;
   readonly XIcon = X;

@@ -62,16 +62,18 @@
     </select>
   }
 
-  <select
-    class="filter-select"
-    [ngModel]="store.sortBy()"
-    (ngModelChange)="store.sortBy.set($event)"
-    title="Ordenar por"
-  >
-    <option value="createdAt">Mais recentes</option>
-    <option value="dueDate">Prazo</option>
-    <option value="title">Título (A-Z)</option>
-  </select>
+  @if (showSort) {
+    <select
+      class="filter-select"
+      [ngModel]="store.sortBy()"
+      (ngModelChange)="store.sortBy.set($event)"
+      title="Ordenar por"
+    >
+      <option value="createdAt">Mais recentes</option>
+      <option value="dueDate">Prazo</option>
+      <option value="title">Título (A-Z)</option>
+    </select>
+  }
 
   @if (store.hasActiveFilters()) {
     <button class="btn btn-sm btn-outline btn-icon" (click)="store.clearFilters()">

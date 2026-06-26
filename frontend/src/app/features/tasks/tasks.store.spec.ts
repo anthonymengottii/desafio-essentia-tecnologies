@@ -12,6 +12,7 @@ function makeTask(p: Partial<Task>): Task {
     title: 'Tarefa',
     description: null,
     status: 'PENDENTE',
+    order: 0,
     dueDate: null,
     creatorId: 1,
     assigneeId: 1,

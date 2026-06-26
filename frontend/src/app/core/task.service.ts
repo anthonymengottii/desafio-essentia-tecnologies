@@ -2,7 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_URL } from './api.config';
-import { Task, TaskInput } from './models/task.model';
+import { Task, TaskInput, TaskStatus } from './models/task.model';
+
+export interface ReorderItem {
+  id: number;
+  order: number;
+  status?: TaskStatus;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -28,5 +34,9 @@ export class TaskService {
 
   remove(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
+  }
+
+  reorder(updates: ReorderItem[]): Observable<void> {
+    return this.http.patch<void>(`${this.base}/reorder`, { updates });
   }
 }

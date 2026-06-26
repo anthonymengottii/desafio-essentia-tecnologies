@@ -175,9 +175,11 @@ export class TasksStore {
     });
   }
 
-  /** Tarefas de uma coluna do Kanban: busca + responsável + ordenação (status pela coluna). */
+  /** Tarefas de uma coluna do Kanban: busca + responsável, ordenadas pela posição manual (`order`). */
   tasksByStatus(status: TaskStatus): Task[] {
-    return this.applyFilters(false).filter((t) => t.status === status);
+    return this.applyFilters(false)
+      .filter((t) => t.status === status)
+      .sort((a, b) => a.order - b.order);
   }
 
   clearFilters(): void {
@@ -207,19 +209,49 @@ export class TasksStore {
     return { done, total: items.length, percent: Math.round((done / items.length) * 100) };
   }
 
-  // ===== Mudança de status (drag-drop do Kanban) =====
-  changeStatus(task: Task, status: TaskStatus): void {
-    if (task.status === status) {
-      return;
+  // ===== Reordenação / movimentação no Kanban =====
+  /**
+   * Persiste a nova ordem das colunas afetadas (optimista). `orderedByStatus` mapeia
+   * cada status para a lista de ids na nova ordem; `movedId` muda de status se necessário.
+   */
+  applyReorder(
+    orderedByStatus: Partial<Record<TaskStatus, number[]>>,
+    movedId: number,
+    movedStatus: TaskStatus
+  ): void {
+    const orderById = new Map<number, number>();
+    const statusById = new Map<number, TaskStatus>();
+    for (const [status, ids] of Object.entries(orderedByStatus)) {
+      (ids ?? []).forEach((id, index) => {
+        orderById.set(id, index);
+        statusById.set(id, status as TaskStatus);
+      });
     }
+
+    // Atualização local imediata.
     this.tasks.update((list) =>
-      list.map((t) => (t.id === task.id ? { ...t, status } : t))
+      list.map((t) => {
+        if (!orderById.has(t.id)) {
+          return t;
+        }
+        return {
+          ...t,
+          order: orderById.get(t.id)!,
+          status: t.id === movedId ? movedStatus : statusById.get(t.id) ?? t.status,
+        };
+      })
     );
-    this.taskService.update(task.id, { status }).subscribe({
-      next: () => this.toast.success(`Movida para "${this.statusLabels[status]}"`),
+
+    const updates = [...orderById.entries()].map(([id, order]) => ({
+      id,
+      order,
+      ...(id === movedId ? { status: movedStatus } : {}),
+    }));
+
+    this.taskService.reorder(updates).subscribe({
       error: () => {
-        this.toast.error('Erro ao mover tarefa');
-        this.load(); // reverte recarregando
+        this.toast.error('Erro ao reordenar tarefas');
+        this.load();
       },
     });
   }
