@@ -195,3 +195,31 @@ Cobre: lógica do `TasksStore` (busca, filtros, ordenação, prazo vencido, prog
 - **Arquitetura modular no backend:** cada domínio (`auth`, `tasks`) tem rotas, controller e service isolados; acesso a dados concentrado nos services.
 - **Validação com Zod** e **tratamento central de erros** via middleware.
 - **Frontend standalone (Angular 19)** com signals, guard de rota e HTTP interceptor que injeta o token JWT.
+
+## Funcionalidades extras (além do escopo) e por quê
+
+Além do CRUD pedido, implementei recursos que aproximam a aplicação de um produto real:
+
+- **Duas visualizações — Lista e Kanban:** a Lista é boa para leitura/edição rápida; o **Kanban**
+  (colunas por status, com **arrastar e soltar**) é melhor para acompanhar o fluxo de trabalho.
+  No Kanban a **ordem dos cards é manual e persistida** (campo `order` + endpoint de reordenação),
+  então o quadro mantém a organização entre acessos.
+- **Busca, filtros e ordenação** centralizados num *store* com signals, compartilhados pelas duas telas:
+  busca por texto, filtro por responsável/status, **escopo rápido** (Todas / Atribuídas a mim /
+  Criadas por mim) e ordenação (recentes/prazo/título). Facilita achar tarefas quando a lista cresce.
+- **Criação/edição em modal** com acessibilidade (focus-trap, foco inicial, retorno de foco, `Esc`)
+  e **validação por campo** reaproveitando os erros do backend (Zod). O modal já permite definir
+  **status, responsável, prazo, tags e checklist** num só lugar.
+- **Detalhes em modal** ao clicar no card, de onde também se edita — evita navegação extra.
+- **Checklist por tarefa** com **barra de progresso** no card; **prazo** com destaque visual para
+  vencidas; **atribuição** entre usuários (cada tarefa guarda criador e responsável).
+- **Feedback e robustez de UX:** *toasts* de sucesso/erro, *skeleton* no carregamento, *empty states*
+  distintos (sem tarefas × sem resultado de filtro) e **paginação** na Lista.
+- **Sidebar** colapsável (estado persistido) e responsiva (vira *drawer* no mobile).
+
+> Onde isso vive no código: estado e regras em
+> [tasks.store.ts](frontend/src/app/features/tasks/tasks.store.ts); filtros em
+> [task-filters](frontend/src/app/features/tasks/task-filters/); modais em
+> [task-modals](frontend/src/app/features/tasks/task-modals/); Kanban em
+> [kanban](frontend/src/app/features/tasks/kanban/). No backend, a reordenação em
+> [tasks.service.ts](backend/src/modules/tasks/tasks.service.ts) (`reorder`).
