@@ -32,6 +32,18 @@ const updateSchema = z.object({
 });
 
 
+const reorderSchema = z.object({
+  updates: z
+    .array(
+      z.object({
+        id: z.number().int().positive(),
+        order: z.number().int(),
+        status: statusEnum.optional(),
+      })
+    )
+    .min(1),
+});
+
 function parseId(raw: string): number {
   const id = Number(raw);
   if (!Number.isInteger(id) || id <= 0) {
@@ -60,6 +72,12 @@ export async function update(req: Request, res: Response): Promise<void> {
   const input = updateSchema.parse(req.body);
   const task = await tasksService.update(req.userId!, parseId(req.params.id), input);
   res.json(task);
+}
+
+export async function reorder(req: Request, res: Response): Promise<void> {
+  const { updates } = reorderSchema.parse(req.body);
+  await tasksService.reorder(req.userId!, updates);
+  res.status(204).send();
 }
 
 export async function remove(req: Request, res: Response): Promise<void> {

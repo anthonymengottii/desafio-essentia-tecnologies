@@ -9,6 +9,7 @@ router.use(authenticate);
 
 router.get("/", asyncHandler(tasksController.list));
 router.post("/", asyncHandler(tasksController.create));
+router.patch("/reorder", asyncHandler(tasksController.reorder));
 router.get("/:id", asyncHandler(tasksController.getById));
 router.put("/:id", asyncHandler(tasksController.update));
 router.delete("/:id", asyncHandler(tasksController.remove));

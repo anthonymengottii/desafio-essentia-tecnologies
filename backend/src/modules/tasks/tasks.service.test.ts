@@ -10,6 +10,7 @@ jest.mock("../../lib/prisma", () => ({
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      aggregate: jest.fn(),
     },
     user: { findUnique: jest.fn() },
   },
@@ -32,6 +33,7 @@ const prismaMock = prisma as unknown as {
     create: jest.Mock;
     update: jest.Mock;
     delete: jest.Mock;
+    aggregate: jest.Mock;
   };
   user: { findUnique: jest.Mock };
 };
@@ -73,6 +75,7 @@ describe("tasks.service", () => {
 
   describe("create", () => {
     it("define o responsável como o criador quando não informado", async () => {
+      prismaMock.task.aggregate.mockResolvedValue({ _max: { order: 4 } });
       prismaMock.task.create.mockResolvedValue({ id: 5, creatorId: 3, assigneeId: 3 });
 
       await tasksService.create(3, { title: "Nova" });
@@ -80,6 +83,7 @@ describe("tasks.service", () => {
       const data = prismaMock.task.create.mock.calls[0][0].data;
       expect(data.creatorId).toBe(3);
       expect(data.assigneeId).toBe(3);
+      expect(data.order).toBe(5); // max(4) + 1
       // não valida existência de outro usuário quando atribui a si mesmo
       expect(prismaMock.user.findUnique).not.toHaveBeenCalled();
       expect(metaMock.updateOne).toHaveBeenCalled();

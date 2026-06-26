@@ -28,6 +28,7 @@ model Task {
   title       String
   description String?    @db.Text
   status      TaskStatus @default(PENDENTE)
+  order       Int        @default(0)
   dueDate     DateTime?
   creatorId   Int
   creator     User      @relation("CreatedTasks", fields: [creatorId], references: [id], onDelete: Cascade)
@@ -38,4 +39,5 @@ model Task {
 
   @@index([creatorId])
   @@index([assigneeId])
+  @@index([order])
 }

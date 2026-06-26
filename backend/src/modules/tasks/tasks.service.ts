@@ -88,11 +88,19 @@ export async function create(userId: number, input: CreateInput) {
     await assertUserExists(assigneeId);
   }
 
+  // Novo card vai para o fim (maior order do usuário + 1).
+  const agg = await prisma.task.aggregate({
+    where: { OR: [{ creatorId: userId }, { assigneeId: userId }] },
+    _max: { order: true },
+  });
+  const nextOrder = (agg._max.order ?? 0) + 1;
+
   const task = await prisma.task.create({
     data: {
       title: input.title,
       description: input.description,
       status: input.status ?? "PENDENTE",
+      order: nextOrder,
       dueDate: input.dueDate ? new Date(input.dueDate) : null,
       creatorId: userId,
       assigneeId,
@@ -165,4 +173,25 @@ export async function remove(userId: number, id: number): Promise<void> {
   await findAccessible(userId, id);
   await prisma.task.delete({ where: { id } });
   await TaskMetaModel.deleteOne({ taskId: id });
+}
+
+interface ReorderItem {
+  id: number;
+  order: number;
+  status?: TaskStatus;
+}
+
+/** Persiste a nova ordem (e status, no drag entre colunas do Kanban). */
+export async function reorder(userId: number, updates: ReorderItem[]) {
+  // Garante que o usuário tem acesso a todas as tarefas envolvidas.
+  await Promise.all(updates.map((u) => findAccessible(userId, u.id)));
+
+  await prisma.$transaction(
+    updates.map((u) =>
+      prisma.task.update({
+        where: { id: u.id },
+        data: { order: u.order, ...(u.status ? { status: u.status } : {}) },
+      })
+    )
+  );
 }
