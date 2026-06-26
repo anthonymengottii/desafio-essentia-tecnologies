@@ -4,6 +4,8 @@
 
 Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desafio técnico.
 
+> 📄 Enunciado original do desafio: [`teste_tecnico.md`](teste_tecnico.md).
+
 - **Frontend:** Angular 19 (standalone components, signals)
 - **Backend:** Node.js + TypeScript + Express
 - **Banco principal:** MySQL (via Prisma ORM)
