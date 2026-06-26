@@ -29,5 +29,6 @@ COPY --from=build /app/prisma ./prisma
 
 EXPOSE 3333
 
-# Aplica migrations e sobe a API
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+# Aplica migrations, popula dados de demonstração e sobe a API
+# (o seed é idempotente; falha nele não impede a API de subir)
+CMD ["sh", "-c", "npx prisma migrate deploy && (node prisma/seed.mjs || true) && node dist/index.js"]

@@ -50,14 +50,15 @@ Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desaf
 
 ## Opção rápida: tudo via Docker
 
-Sobe bancos **e** a API de uma vez (a API aplica as migrations automaticamente):
+Sobe bancos **e** a API de uma vez. No start, o container aplica as **migrations** e roda o
+**seed** automaticamente (usuário demo + tarefas de exemplo):
 
 ```bash
 docker compose up --build
 ```
 
 - API: `http://localhost:3333`
-- Em seguida, rode só o frontend (passo 3).
+- Em seguida, rode só o frontend (passo 3) e entre com **`demo@techx.com` / `demo123`**.
 
 > Para desenvolver o backend localmente (hot-reload), use os passos 1 e 2 abaixo.
 

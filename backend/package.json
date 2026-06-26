@@ -12,10 +12,10 @@
     "prisma:studio": "prisma studio",
     "test": "jest",
     "lint": "eslint src",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node prisma/seed.mjs"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
