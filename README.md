@@ -1,5 +1,7 @@
 # TechX — To-Do List (Desafio Full Stack)
 
+![CI](https://github.com/anthonymengottii/desafio-essentia-tecnologies/actions/workflows/ci.yml/badge.svg)
+
 Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desafio técnico.
 
 - **Frontend:** Angular 19 (standalone components, signals)
@@ -19,6 +21,21 @@ Aplicação web de gerenciamento de tarefas (To-Do List) desenvolvida como desaf
 - Atribuir tarefas a outros usuários; cada tarefa registra quem criou e o responsável
 - Listagem mostra tarefas criadas pelo usuário **ou** atribuídas a ele
 - Tags e histórico de atividades de cada tarefa (MongoDB)
+- Visão **Lista** e visão **Kanban** (arrastar e soltar com ordem persistida)
+
+---
+
+## Demonstração
+
+| Lista | Kanban |
+| --- | --- |
+| ![Lista de tarefas](docs/screenshots/list.png) | ![Kanban](docs/screenshots/kanban.png) |
+
+| Detalhes da tarefa | Login |
+| --- | --- |
+| ![Detalhes](docs/screenshots/details.png) | ![Login](docs/screenshots/login.png) |
+
+> **Conta de demonstração:** `demo@techx.com` / `demo123` (criada pelo seed — ver abaixo).
 
 ---
 
@@ -68,10 +85,13 @@ cd backend
 npm install
 cp .env.example .env        # no Windows: copy .env.example .env
 npx prisma migrate dev      # cria as tabelas no MySQL
+npm run seed                # (opcional) popula usuário demo + tarefas de exemplo
 npm run dev
 ```
 
 API disponível em **http://localhost:3333**.
+
+> Após o seed, entre com **`demo@techx.com` / `demo123`** para ver o app já com dados.
 
 Variáveis de ambiente (`backend/.env`):
 
