@@ -109,12 +109,41 @@ describe('TasksStore', () => {
     expect(store.tasksByStatus('PENDENTE').map((t) => t.id)).toEqual([1]);
   });
 
-  it('clearFilters reseta busca/responsável/status', () => {
+  it('clearFilters reseta busca/escopo/responsável/status', () => {
     store.search.set('x');
+    store.scope.set('mine');
     store.filterStatus.set('CONCLUIDA' as TaskStatus);
     store.clearFilters();
     expect(store.search()).toBe('');
+    expect(store.scope()).toBe('all');
     expect(store.filterStatus()).toBe('all');
     expect(store.hasActiveFilters()).toBe(false);
+  });
+
+  it('scope "mine" mostra só tarefas atribuídas ao usuário atual', () => {
+    store.tasks.set([
+      makeTask({ id: 1, assigneeId: 1, creatorId: 2 }),
+      makeTask({ id: 2, assigneeId: 2, creatorId: 1 }),
+    ]);
+    store.scope.set('mine');
+    expect(store.filteredTasks().map((t) => t.id)).toEqual([1]);
+  });
+
+  it('scope "created" mostra só tarefas criadas pelo usuário atual', () => {
+    store.tasks.set([
+      makeTask({ id: 1, assigneeId: 1, creatorId: 2 }),
+      makeTask({ id: 2, assigneeId: 2, creatorId: 1 }),
+    ]);
+    store.scope.set('created');
+    expect(store.filteredTasks().map((t) => t.id)).toEqual([2]);
+  });
+
+  it('pagedTasks limita ao pageSize e nextPage avança', () => {
+    const many = Array.from({ length: 20 }, (_, i) => makeTask({ id: i + 1 }));
+    store.tasks.set(many);
+    expect(store.pagedTasks().length).toBe(store.pageSize);
+    expect(store.totalPages()).toBe(3);
+    store.nextPage();
+    expect(store.page()).toBe(2);
   });
 });

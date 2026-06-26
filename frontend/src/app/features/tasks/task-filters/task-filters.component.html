@@ -1,3 +1,30 @@
+<div class="scope-chips">
+  <button
+    type="button"
+    class="chip"
+    [class.active]="store.scope() === 'all'"
+    (click)="store.scope.set('all')"
+  >
+    Todas
+  </button>
+  <button
+    type="button"
+    class="chip"
+    [class.active]="store.scope() === 'mine'"
+    (click)="store.scope.set('mine')"
+  >
+    Atribuídas a mim
+  </button>
+  <button
+    type="button"
+    class="chip"
+    [class.active]="store.scope() === 'created'"
+    (click)="store.scope.set('created')"
+  >
+    Criadas por mim
+  </button>
+</div>
+
 <div class="filters">
   <div class="search-box">
     <lucide-icon [img]="SearchIcon" [size]="16" />

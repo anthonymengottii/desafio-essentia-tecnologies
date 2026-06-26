@@ -31,7 +31,7 @@
       <button class="btn btn-sm btn-outline" (click)="store.clearFilters()">Limpar filtros</button>
     </div>
   } @else {
-    @for (task of store.filteredTasks(); track task.id) {
+    @for (task of store.pagedTasks(); track task.id) {
       <div class="card task-item" [class.done]="task.status === 'CONCLUIDA'">
         <div class="task-body clickable" (click)="store.openDetails(task)" title="Ver detalhes">
           <div class="task-title-row">
@@ -90,5 +90,21 @@
     }
   }
 </section>
+
+@if (store.totalPages() > 1) {
+  <div class="pagination">
+    <button class="btn btn-sm btn-outline" [disabled]="store.page() === 1" (click)="store.prevPage()">
+      Anterior
+    </button>
+    <span class="pagination-info">Página {{ store.page() }} de {{ store.totalPages() }}</span>
+    <button
+      class="btn btn-sm btn-outline"
+      [disabled]="store.page() === store.totalPages()"
+      (click)="store.nextPage()"
+    >
+      Próxima
+    </button>
+  </div>
+}
 
 <app-task-modals />

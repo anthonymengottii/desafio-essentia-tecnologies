@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { TaskService } from '../../core/task.service';
 import { UserService } from '../../core/user.service';
 import { AuthService } from '../../core/auth/auth.service';
@@ -14,6 +14,7 @@ import {
 import { User } from '../../core/models/user.model';
 
 export type SortBy = 'createdAt' | 'dueDate' | 'title';
+export type Scope = 'all' | 'mine' | 'created';
 
 /**
  * Estado e ações compartilhados das tarefas (usados pela Lista e pelo Kanban),
@@ -37,6 +38,7 @@ export class TasksStore {
 
   // Busca / filtros / ordenação
   search = signal('');
+  scope = signal<Scope>('all');
   filterAssignee = signal<number | 'all'>('all');
   filterStatus = signal<TaskStatus | 'all'>('all');
   sortBy = signal<SortBy>('createdAt');
@@ -44,14 +46,40 @@ export class TasksStore {
   hasActiveFilters = computed(
     () =>
       this.search().trim() !== '' ||
+      this.scope() !== 'all' ||
       this.filterAssignee() !== 'all' ||
       this.filterStatus() !== 'all'
   );
 
-  /** Tarefas após busca + responsável + status, ordenadas (usado pela Lista). */
+  /** Tarefas após busca + escopo + responsável + status, ordenadas (usado pela Lista). */
   filteredTasks = computed(() => this.applyFilters(true));
 
   pendingCount = computed(() => this.tasks().filter((t) => t.status !== 'CONCLUIDA').length);
+
+  // Paginação (apenas Lista)
+  readonly pageSize = 8;
+  page = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filteredTasks().length / this.pageSize)));
+  pagedTasks = computed(() => {
+    const start = (this.page() - 1) * this.pageSize;
+    return this.filteredTasks().slice(start, start + this.pageSize);
+  });
+
+  constructor() {
+    // Volta para a primeira página sempre que o conjunto filtrado muda.
+    effect(() => {
+      this.filteredTasks();
+      this.page.set(1);
+    });
+  }
+
+  nextPage(): void {
+    this.page.update((p) => Math.min(p + 1, this.totalPages()));
+  }
+
+  prevPage(): void {
+    this.page.update((p) => Math.max(p - 1, 1));
+  }
 
   // Modal de formulário (criação/edição)
   modalOpen = signal(false);
@@ -104,11 +132,19 @@ export class TasksStore {
   /** Aplica busca + responsável (+ status opcional) e ordena. */
   private applyFilters(includeStatus: boolean): Task[] {
     const q = this.search().trim().toLowerCase();
+    const scope = this.scope();
     const assignee = this.filterAssignee();
     const status = this.filterStatus();
+    const me = this.currentUserId;
 
     const list = this.tasks().filter((t) => {
       if (q && !`${t.title} ${t.description ?? ''}`.toLowerCase().includes(q)) {
+        return false;
+      }
+      if (scope === 'mine' && t.assigneeId !== me) {
+        return false;
+      }
+      if (scope === 'created' && t.creatorId !== me) {
         return false;
       }
       if (assignee !== 'all' && t.assigneeId !== assignee) {
@@ -146,6 +182,7 @@ export class TasksStore {
 
   clearFilters(): void {
     this.search.set('');
+    this.scope.set('all');
     this.filterAssignee.set('all');
     this.filterStatus.set('all');
   }
