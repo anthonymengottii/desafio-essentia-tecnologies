@@ -42,7 +42,7 @@ jobs:
         id: setup-chrome
       - run: npm ci
       - run: npm run lint
-      - run: npm test -- --watch=false --browsers=ChromeHeadless
+      - run: npm test -- --watch=false --browsers=ChromeHeadlessNoSandbox
         env:
           CHROME_BIN: ${{ steps.setup-chrome.outputs.chrome-path }}
       - run: npm run build
